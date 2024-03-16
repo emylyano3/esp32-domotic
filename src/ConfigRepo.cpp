@@ -16,7 +16,7 @@ bool ConfigRepo::reset() {
 }
 
 bool ConfigRepo::load(ConfigDef* config) {
-    File configFile = LittleFS.open(config->location, "r");
+    File configFile = LittleFS.open(config->getConfigFilePath(), "r");
     if (!configFile) {
         log("failed to open file");
         return false;
@@ -28,10 +28,10 @@ bool ConfigRepo::load(ConfigDef* config) {
     JsonDocument doc;
     DeserializationError error = deserializeJson(doc, buf.get());
     if (!error) {
-        strcpy(config->mqttServer, doc["mqtt_server"]);
-        strcpy(config->mqttPort, doc["mqtt_port"]);
-        strcpy(config->moduleLocation, doc["location"]);
-        strcpy(config->moduleName, doc["name"]);
+        strcpy(config->getMqttHost(), doc["mqtt_host"]);
+        strcpy(config->getMqttPort(), doc["mqtt_port"]);
+        strcpy(config->getModuleLocation(), doc["location"]);
+        strcpy(config->getModuleName(), doc["name"]);
         configFile.close();
         return true; 
     } else {
@@ -42,16 +42,16 @@ bool ConfigRepo::load(ConfigDef* config) {
 }
 
 bool ConfigRepo::save(ConfigDef* config) {
-    File configFile = LittleFS.open(config->location, "w");
+    File configFile = LittleFS.open(config->getConfigFilePath(), "w");
     if (!configFile) {
         log("failed to open file for writing");
         return false;
     }
     JsonDocument doc;
-    doc["mqtt_server"] = config->mqttServer;
-    doc["mqtt_port"] = config->mqttPort;
-    doc["location"] = config->moduleLocation;
-    doc["name"] = config->moduleName;
+    doc["mqtt_host"] = config->getMqttHost();
+    doc["mqtt_port"] = config->getMqttPort();
+    doc["location"] = config->getModuleLocation();
+    doc["name"] = config->getModuleName();
     if (serializeJson(doc, configFile) == 0) {
         log("Failed to write to file");
         configFile.close();

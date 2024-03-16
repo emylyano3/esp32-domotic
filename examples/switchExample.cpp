@@ -18,6 +18,8 @@ void setup() {
 
   log("Channel is analog", channel.isAnalog());
   log("Channel is output", channel.isOutput());
+  log("Module location", domoticModule.getConfig()->getModuleLocation());
+  log("Module name", domoticModule.getConfig()->getModuleName());
 }
 
 void loop() {

@@ -35,10 +35,10 @@ void ESP32Domotic::init() {
 
 bool ESP32Domotic::connectWifi() {
   WiFiManager wifiManager;
-  WiFiManagerParameter server("server", "mqtt server", this->config->mqttServer, 16);
-  WiFiManagerParameter port("port", "mqtt port", this->config->mqttPort, 6);
-  WiFiManagerParameter name("name", "module name", this->config->moduleName, 32);
-  WiFiManagerParameter location("location", "module location", this->config->moduleLocation, 32);
+  WiFiManagerParameter server("server", "mqtt server", this->config->getMqttHost(), 16);
+  WiFiManagerParameter port("port", "mqtt port", this->config->getMqttPort(), 6);
+  WiFiManagerParameter name("name", "module name", this->config->getModuleName(), 32);
+  WiFiManagerParameter location("location", "module location", this->config->getModuleLocation(), 32);
 
   wifiManager.addParameter(&server);
   wifiManager.addParameter(&port);
@@ -50,10 +50,10 @@ bool ESP32Domotic::connectWifi() {
   wifiManager.setConnectTimeout(this->wifiConnectTimeout);
   wifiManager.setSaveConfigCallback(saveConfigCallback);
   if (wifiManager.autoConnect()) {
-    strcpy(this->config->mqttServer, server.getValue());
-    strcpy(this->config->mqttPort, port.getValue());
-    strcpy(this->config->moduleName, name.getValue());
-    strcpy(this->config->moduleLocation, location.getValue());
+    strcpy(this->config->getMqttHost(), server.getValue());
+    strcpy(this->config->getMqttPort(), port.getValue());
+    strcpy(this->config->getModuleName(), name.getValue());
+    strcpy(this->config->getModuleLocation(), location.getValue());
     return true;
   }
   return false;
@@ -79,6 +79,10 @@ bool ESP32Domotic::addChannel(Channel *channel) {
 
 void ESP32Domotic::setModuleType(const char* type) {
   this->moduleType = type;
+}
+
+ConfigDef* ESP32Domotic::getConfig() {
+  return this->config;
 }
 
 void ESP32Domotic::setWifiConnectTimeout (uint16_t seconds) {

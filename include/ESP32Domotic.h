@@ -56,5 +56,7 @@ class ESP32Domotic {
         void    setWifiConnectTimeout (uint16_t seconds);
         void    setConfigPortalTimeout (uint16_t seconds);
         void    setConfigFileSize (uint16_t bytes);
+
+        ConfigDef*  getConfig();
 };
 #endif
