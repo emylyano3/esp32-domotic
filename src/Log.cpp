@@ -12,19 +12,20 @@ template <typename T>void debugHelper(const T& value) {
     serialPrintValue(value);
 }
 
-template <typename T> void debug (T text) {
-  Serial.print("*DOMO: ");
+void debug (const char* text) {
+  Serial.print("*DOM: ");
   Serial.println(text);
 }
 
 template <typename T, typename U> void debug (T key, U value) {
-  Serial.print("*DOMO: ");
+  Serial.print("*DOM: ");
   Serial.print(key);
   Serial.print(": ");
   Serial.println(value);
 }
 
 template <typename T, typename... Args>void debug(const T& key, const Args&... values) {
+    Serial.print("*DOM: ");
     Serial.print(key);
     Serial.print(": ");
     Serial.print(", ");

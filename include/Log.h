@@ -3,7 +3,7 @@
 
 #include <Arduino.h>
 
-template <typename T> void debug (T text);
+void debug (const char* text);
 
 template <typename T, typename U> void debug (T key, U value);
 

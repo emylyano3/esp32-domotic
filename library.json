@@ -1,17 +1,19 @@
 {
   "name": "esp32-domotic",
-  "version": "0.0.0",
+  "version": "0.0.1-alpha",
   "dependencies": [ 
     {
       "name": "PubSubclient",
       "version": "^2.8"
     },
     {
-      "name": "bblanchon/ArduinoJson",
+      "owner": "bblanchon",
+      "name": "ArduinoJson",
       "version": "^7.0.4"
     },
     {
-      "name": "wnatth3/WiFiManager",
+      "owner": "wnatth3",
+      "name": "WiFiManager",
       "version": "2.0.16-rc.2"
     }
   ],
