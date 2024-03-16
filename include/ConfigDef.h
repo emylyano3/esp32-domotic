@@ -4,9 +4,11 @@
 class ConfigDef {
 
     public:
-        ConfigDef();
+        ConfigDef(const char* location);
         ~ConfigDef();
     
+        const char* location;
+
         char* mqttServer;
         char* mqttPort;
         char* moduleName;

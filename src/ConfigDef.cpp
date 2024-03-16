@@ -1,7 +1,7 @@
 #include "ConfigDef.h"
 
-ConfigDef::ConfigDef() {
-    
+ConfigDef::ConfigDef(const char* location) {
+    this->location = location;
 }
 
 ConfigDef::~ConfigDef() {

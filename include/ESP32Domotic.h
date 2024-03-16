@@ -37,7 +37,7 @@ class ESP32Domotic {
     PubSubClient        mqttClient;
 
     Channel*            channels[MAX_CHANNELS];
-    ConfigDef*          config = new ConfigDef();
+    ConfigDef*          config = new ConfigDef("/config.json");
 
     bool connectWifi();
     
@@ -46,8 +46,8 @@ class ESP32Domotic {
         ESP32Domotic() : mqttClient(wifiClient) {};
         ~ESP32Domotic();
 
-        void init();
-        void cycle();
+        void    init();
+        void    cycle();
 
          // Adds new channel to manage. Returns true if channel added successfuly.
         bool    addChannel(Channel* c);
@@ -57,5 +57,4 @@ class ESP32Domotic {
         void    setConfigPortalTimeout (uint16_t seconds);
         void    setConfigFileSize (uint16_t bytes);
 };
-
 #endif

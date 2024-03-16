@@ -5,16 +5,24 @@
 //Setup y loop para que no chille el compilador
 void setup(){}
 void loop(){}
+    
+static bool needToSaveConfig = false;
+
+void saveConfigCallback(){
+  Serial.println("[CALLBACK] saveConfigCallback fired");
+  needToSaveConfig = true;
+}
 
 ESP32Domotic::~ESP32Domotic(){}
 
 void ESP32Domotic::init() { 
   ConfigRepo repo;
   repo.load(this->config);
-
   if (connectWifi()) {
     Serial.println("Connected to wifi");
-    repo.save(this->config);
+    if (needToSaveConfig) {
+      repo.save(this->config);
+    }
   } else {
     Serial.println("Could not connect to wifi");
     ESP.restart();
@@ -36,6 +44,7 @@ bool ESP32Domotic::connectWifi() {
   wifiManager.setMinimumSignalQuality();
   wifiManager.setConfigPortalTimeout(this->configPortalTimeout);
   wifiManager.setConnectTimeout(this->wifiConnectTimeout);
+  wifiManager.setSaveConfigCallback(saveConfigCallback);
   if (wifiManager.autoConnect()) {
     strcpy(this->config->mqttServer, server.getValue());
     strcpy(this->config->mqttPort, port.getValue());
