@@ -4,9 +4,11 @@
 #include <WiFiManager.h>
 
 //Setup y loop para que no chille el compilador
+#ifdef DEV_LOCAL_RUN
 void setup(){}
 void loop(){}
-    
+#endif 
+
 static bool needToSaveConfig = false;
 
 void saveConfigCallback(){
