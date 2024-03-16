@@ -6,8 +6,8 @@
 class ConfigRepo {
     public:
         bool reset();
+        bool init();
         bool load(ConfigDef* config);
         bool save(ConfigDef* config);
-
 };
 #endif

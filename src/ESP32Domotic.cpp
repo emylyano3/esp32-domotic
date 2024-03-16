@@ -18,6 +18,7 @@ ESP32Domotic::~ESP32Domotic(){}
 
 void ESP32Domotic::init() { 
   ConfigRepo repo;
+  repo.init();
   repo.load(this->config);
   if (connectWifi()) {
     Serial.println("Connected to wifi");
