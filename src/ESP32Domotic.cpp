@@ -1,6 +1,6 @@
 #include "ESP32Domotic.h"
 #include "ConfigRepo.h"
-#include "Log.h"
+#include "Logger.h"
 #include <WiFiManager.h>
 
 //Setup y loop para que no chille el compilador
@@ -66,12 +66,12 @@ bool ESP32Domotic::addChannel(Channel *channel) {
   if (this->channelsCount < MAX_CHANNELS) {
     this->channels[this->channelsCount++] = channel;
     #ifdef LOGGING
-    debug("Channel added", channel->getName());
+    log("Channel added", channel->getName());
     #endif
     return true;
   } else {
     #ifdef LOGGING
-    debug("No more channels suported");
+    log("No more channels suported");
     #endif
     return false;
   }
