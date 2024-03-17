@@ -32,6 +32,11 @@ void ESP32Domotic::init() {
     Serial.println("Could not connect to wifi");
     ESP.restart();
   }
+  otaUpdate.init();
+}
+
+void ESP32Domotic::cycle() {
+  otaUpdate.handle();
 }
 
 bool ESP32Domotic::connectWifi() {
@@ -85,9 +90,6 @@ bool ESP32Domotic::connectWifi() {
     return true;
   }
   return false;
-}
-
-void ESP32Domotic::cycle() {
 }
 
 bool ESP32Domotic::addChannel(Channel *channel) {

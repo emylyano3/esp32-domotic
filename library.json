@@ -5,13 +5,11 @@
     {
       "name": "PubSubclient",
       "version": "^2.8"
-    },
-    {
+    },{
       "owner": "bblanchon",
       "name": "ArduinoJson",
       "version": "^7.0.4"
-    },
-    {
+    },{
       "owner": "wnatth3",
       "name": "WiFiManager",
       "version": "2.0.16-rc.2"

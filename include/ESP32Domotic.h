@@ -6,6 +6,7 @@
 #include <WebServer.h>
 #include <DNSServer.h>
 #include <PubSubClient.h>
+#include "OTAUpdate.h"
 #include "Channel.h"
 #include "ConfigDef.h"
 
@@ -37,11 +38,13 @@ class ESP32Domotic {
     WiFiClient          wifiClient;
     PubSubClient        mqttClient;
 
+    OTAUpdate           otaUpdate;
     Channel*            channels[MAX_CHANNELS];
     ConfigDef*          config = new ConfigDef("/config.json");
 
     bool connectWifi();
-    
+    void configOTA();
+
     public:
 
         ESP32Domotic() : mqttClient(wifiClient) {};
