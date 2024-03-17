@@ -126,5 +126,5 @@ void ESP32Domotic::setConfigFileSize (uint16_t bytes) {
 }
 
 void ESP32Domotic::setPortalSSID (const char* ssid) {
-  this->ssid = ssid;
+  this->apSsid = ssid;
 }
