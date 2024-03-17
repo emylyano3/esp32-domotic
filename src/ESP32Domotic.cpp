@@ -11,6 +11,7 @@ void loop(){}
 
 static bool needToSaveConfig = false;
 
+//TODO chequear si funciona meter esto en la clase como static
 void saveConfigCallback(){
   Serial.println("[CALLBACK] saveConfigCallback fired");
   needToSaveConfig = true;
@@ -34,22 +35,49 @@ void ESP32Domotic::init() {
 }
 
 bool ESP32Domotic::connectWifi() {
-  WiFiManager wifiManager;
   WiFiManagerParameter server("server", "mqtt server", this->config->getMqttHost(), 16);
   WiFiManagerParameter port("port", "mqtt port", this->config->getMqttPort(), 6);
   WiFiManagerParameter name("name", "module name", this->config->getModuleName(), 32);
   WiFiManagerParameter location("location", "module location", this->config->getModuleLocation(), 32);
 
-  wifiManager.addParameter(&server);
-  wifiManager.addParameter(&port);
-  wifiManager.addParameter(&name);
-  wifiManager.addParameter(&location);
+  WiFiManager wm;
+  wm.addParameter(&server);
+  wm.addParameter(&port);
+  wm.addParameter(&name);
+  wm.addParameter(&location);
 
-  wifiManager.setMinimumSignalQuality();
-  wifiManager.setConfigPortalTimeout(this->configPortalTimeout);
-  wifiManager.setConnectTimeout(this->wifiConnectTimeout);
-  wifiManager.setSaveConfigCallback(saveConfigCallback);
-  if (wifiManager.autoConnect()) {
+  wm.setMinimumSignalQuality(40); // set min RSSI (percentage) to show in scans, null = 8%
+  wm.setConfigPortalTimeout(this->configPortalTimeout);// auto close configportal after n seconds
+  wm.setConnectTimeout(this->wifiConnectTimeout);// how long to try to connect for before continuing
+  wm.setSaveConfigCallback(saveConfigCallback);
+  wm.setAPClientCheck(true); // avoid timeout if client connected to softap
+  wm.setCaptivePortalEnable(true); // disable captive portal redirection
+
+  // custom menu via array or vector
+  // 
+  // menu tokens, "wifi","wifinoscan","info","param","close","sep","erase","restart","exit" (sep is seperator) (if param is in menu, params will not show up in wifi page!)
+  // const char* menu[] = {"wifi","info","param","sep","restart","exit"}; 
+  // wm.setMenu(menu,6);
+  //std::vector<const char *> menu = {"wifi","info","param","sep","restart","exit"};
+  //wm.setMenu(menu);
+
+  // set dark theme
+  //wm.setClass("invert");
+
+  //set static ip
+  // wm.setSTAStaticIPConfig(IPAddress(10,0,1,99), IPAddress(10,0,1,1), IPAddress(255,255,255,0)); // set static ip,gw,sn
+  // wm.setShowStaticFields(true); // force show static ip fields
+  // wm.setShowDnsFields(true);    // force show dns field always
+  
+  // wifi scan settings
+  // wm.setRemoveDuplicateAPs(false); // do not remove duplicate ap names (true)
+  // wm.setShowInfoErase(false);      // do not show erase button on info page
+  // wm.setScanDispPerc(true);       // show RSSI as percentage not graph icons
+  
+  // wm.setBreakAfterConfig(true);   // always exit configportal even if wifi save fails
+
+  bool connected = this->apSsid ? wm.autoConnect(this->apSsid) : wm.autoConnect();
+  if (connected) {
     strcpy(this->config->getMqttHost(), server.getValue());
     strcpy(this->config->getMqttPort(), port.getValue());
     strcpy(this->config->getModuleName(), name.getValue());
@@ -95,4 +123,8 @@ void ESP32Domotic::setConfigPortalTimeout (uint16_t seconds) {
 
 void ESP32Domotic::setConfigFileSize (uint16_t bytes) {
   this->configFileSize = bytes;
+}
+
+void ESP32Domotic::setPortalSSID (const char* ssid) {
+  this->ssid = ssid;
 }

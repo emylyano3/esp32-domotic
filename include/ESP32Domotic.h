@@ -21,6 +21,7 @@ class ESP32Domotic {
 
     uint8_t         channelsCount   = 0;
     const char*     moduleType      = "generic";
+    const char*     apSsid          = NULL;
 
     uint16_t        wifiConnectTimeout   = 30;
     uint16_t        configPortalTimeout  = 60;
@@ -56,6 +57,7 @@ class ESP32Domotic {
         void    setWifiConnectTimeout (uint16_t seconds);
         void    setConfigPortalTimeout (uint16_t seconds);
         void    setConfigFileSize (uint16_t bytes);
+        void    setPortalSSID (const char* ssid);
 
         ConfigDef*  getConfig();
 };
