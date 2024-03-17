@@ -13,6 +13,10 @@
       "owner": "wnatth3",
       "name": "WiFiManager",
       "version": "2.0.16-rc.2"
+    },{
+      "owner": "ayushsharma82",
+      "name": "ElegantOTA",
+      "version": "^3.1.1"
     }
   ],
   "frameworks": "arduino",
