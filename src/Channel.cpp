@@ -1,4 +1,5 @@
 #include "Channel.h"
+#include "Logger.h"
 
 Channel::Channel(const char* id, const char* name, uint8_t pin, uint8_t pinMode, bool analog, bool inverted) {
   this->id = id;
@@ -48,7 +49,7 @@ void Channel::write(int value) {
   if (this->analog) {
     this->currState = value;
     #ifdef LOGGING
-    // debug(F("Changing channel state to"), this->currState);
+    log("Changing channel state to", this->currState);
     #endif
     analogWrite(this->pin, this->currState);
   } else {
@@ -60,7 +61,7 @@ void Channel::write(int value) {
     }
     this->currState = value;
     #ifdef LOGGING
-    // debug(F("Changing channel state to"), this->currState == HIGH ? "[ON]" : "[OFF]");
+    log("Changing channel state to", this->currState == HIGH ? "[ON]" : "[OFF]");
     #endif
     digitalWrite(this->pin, this->currState);
   }
@@ -79,6 +80,10 @@ int Channel::getMappedState() {
 
 int Channel::getRawState() {
   return this->currState;
+}
+
+char* Channel::getName() {
+  return this->name;
 }
 
 int Channel::getPrevState() {
