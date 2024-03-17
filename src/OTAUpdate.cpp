@@ -3,11 +3,11 @@
 
 unsigned long ota_progress_millis = 0;
 
-void onOTAStart() {
+void OTAUpdate::onStart() {
   log("OTA update started!");
 }
 
-void onOTAProgress(size_t current, size_t final) {
+void OTAUpdate::onProgress(size_t current, size_t final) {
   if (millis() - ota_progress_millis > 1000) {
     ota_progress_millis = millis();
     #ifdef LOGGING
@@ -16,7 +16,7 @@ void onOTAProgress(size_t current, size_t final) {
   }
 }
 
-void onOTAEnd(bool success) {
+void OTAUpdate::onEnd(bool success) {
   if (success) {
     log("OTA update finished successfully!");
   } else {
@@ -25,15 +25,13 @@ void onOTAEnd(bool success) {
 }
 
 void OTAUpdate::init(){
-/*
-  this->server.on("/", []() {
+  this->server.on("/", [this]() {
     server.send(200, "text/plain", "Hi! This is ElegantOTA Demo.");
   });
-*/
   ElegantOTA.begin(&this->server); 
-  ElegantOTA.onStart(onOTAStart);
-  ElegantOTA.onProgress(onOTAProgress);
-  ElegantOTA.onEnd(onOTAEnd);
+  ElegantOTA.onStart(onStart);
+  ElegantOTA.onProgress(onProgress);
+  ElegantOTA.onEnd(onEnd);
 
   this->server.begin();
   log("HTTP server started");

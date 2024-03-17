@@ -10,6 +10,10 @@ class OTAUpdate {
     
     WebServer server;
     
+    static void onStart();
+    static void onProgress(size_t current, size_t final);
+    static void onEnd(bool success);
+
     public:
         OTAUpdate() : server(80){};
 
