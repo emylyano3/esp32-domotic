@@ -20,16 +20,23 @@ void saveConfigCallback(){
 ESP32Domotic::~ESP32Domotic(){}
 
 void ESP32Domotic::init() { 
+  log("Initializing domotic module");
   ConfigRepo repo;
   repo.init();
-  repo.load(this->config);
+  if (!repo.load(this->config)) {
+    log("Setting defaults. Could not load config from", this->config->getConfigFilePath());
+    this->config->updateMqttHost("192.168.1.101");
+    this->config->updateMqttPort("1883");
+    this->config->updateModuleLocation("");
+    this->config->updateModuleName("");
+  }
   if (connectWifi()) {
-    Serial.println("Connected to wifi");
+    log("Connected to wifi");
     if (needToSaveConfig) {
       repo.save(this->config);
     }
   } else {
-    Serial.println("Could not connect to wifi");
+    log("Could not connect to wifi");
     ESP.restart();
   }
   otaUpdate.init();
@@ -40,23 +47,25 @@ void ESP32Domotic::cycle() {
 }
 
 bool ESP32Domotic::connectWifi() {
-  WiFiManagerParameter server("server", "mqtt server", this->config->getMqttHost(), 16);
-  WiFiManagerParameter port("port", "mqtt port", this->config->getMqttPort(), 6);
-  WiFiManagerParameter name("name", "module name", this->config->getModuleName(), 32);
-  WiFiManagerParameter location("location", "module location", this->config->getModuleLocation(), 32);
-
+  log("Connecting wifi");
+  WiFiManagerParameter server("server", "mqtt server", this->config->getMqttHost(), MQTT_HOST_PARAM_LENGTH);
+  WiFiManagerParameter port("port", "mqtt port", this->config->getMqttPort(), MQTT_PORT_PARAM_LENGTH);
+  WiFiManagerParameter name("name", "module name", this->config->getModuleName(), MODULE_NAME_PARAM_LENGTH);
+  WiFiManagerParameter location("location", "module location", this->config->getModuleLocation(), MODULE_LOCATION_PARAM_LENGTH);
+  log("Params created");
   WiFiManager wm;
   wm.addParameter(&server);
   wm.addParameter(&port);
   wm.addParameter(&name);
   wm.addParameter(&location);
-
+  log("WM created & Params added");
   wm.setMinimumSignalQuality(40); // set min RSSI (percentage) to show in scans, null = 8%
   wm.setConfigPortalTimeout(this->configPortalTimeout);// auto close configportal after n seconds
   wm.setConnectTimeout(this->wifiConnectTimeout);// how long to try to connect for before continuing
   wm.setSaveConfigCallback(saveConfigCallback);
   wm.setAPClientCheck(true); // avoid timeout if client connected to softap
   wm.setCaptivePortalEnable(true); // disable captive portal redirection
+  log("WM settings done");
 
   // custom menu via array or vector
   // 
@@ -80,15 +89,17 @@ bool ESP32Domotic::connectWifi() {
   // wm.setScanDispPerc(true);       // show RSSI as percentage not graph icons
   
   // wm.setBreakAfterConfig(true);   // always exit configportal even if wifi save fails
-
+  log("Launching autoconnect");
   bool connected = this->apSsid ? wm.autoConnect(this->apSsid) : wm.autoConnect();
   if (connected) {
-    strcpy(this->config->getMqttHost(), server.getValue());
-    strcpy(this->config->getMqttPort(), port.getValue());
-    strcpy(this->config->getModuleName(), name.getValue());
-    strcpy(this->config->getModuleLocation(), location.getValue());
+    this->config->updateMqttHost(server.getValue());
+    this->config->updateMqttPort(port.getValue());
+    this->config->updateModuleName(name.getValue());
+    this->config->updateModuleLocation(location.getValue());
+    log("Connected!");
     return true;
   }
+  log("Could not connect");
   return false;
 }
 

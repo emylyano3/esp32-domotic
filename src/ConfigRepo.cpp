@@ -4,7 +4,7 @@
 #include "Logger.h"
 
 bool ConfigRepo::init() {
-    if (LittleFS.begin()) {
+    if (LittleFS.begin(true)) {
         return true;
     }
     log("Error al inicializar el FS");
@@ -28,10 +28,10 @@ bool ConfigRepo::load(ConfigDef* config) {
     JsonDocument doc;
     DeserializationError error = deserializeJson(doc, buf.get());
     if (!error) {
-        strcpy(config->getMqttHost(), doc["mqtt_host"]);
-        strcpy(config->getMqttPort(), doc["mqtt_port"]);
-        strcpy(config->getModuleLocation(), doc["location"]);
-        strcpy(config->getModuleName(), doc["name"]);
+        config->updateMqttHost(doc["mqtt_host"]);
+        config->updateMqttPort(doc["mqtt_port"]);
+        config->updateModuleName(doc["name"]);
+        config->updateModuleLocation(doc["location"]);
         configFile.close();
         return true; 
     } else {
