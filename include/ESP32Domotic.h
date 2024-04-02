@@ -31,22 +31,15 @@ class ESP32Domotic {
     unsigned long   mqttNextConnAtte     = 0;
     unsigned int    mqttReconnections    = 0;
 
-    /* HTTP Update */
-    WebServer           httpServer;
-    //TODO Implementar OTA Update segun: https://randomnerdtutorials.com/esp32-over-the-air-ota-programming/
-    //ESP32HTTPUpdate     httpUpdater;
-    WiFiClient          wifiClient;
-    PubSubClient        mqttClient;
-
-OTAUpdate           otaUpdate;
-    Channel*            channels[MAX_CHANNELS];
-    ConfigDef*          config = new ConfigDef("/config.json");
+    ConfigDef*      config = new ConfigDef("/config.json");
+    OTAUpdate*      otaUpdate;
+    Channel*        channels[MAX_CHANNELS];
 
     bool connectWifi();
 
     public:
 
-        ESP32Domotic() : mqttClient(wifiClient) {};
+        ESP32Domotic(){};
         ~ESP32Domotic();
 
         void    init();

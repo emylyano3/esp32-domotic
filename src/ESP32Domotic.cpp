@@ -17,7 +17,12 @@ void saveConfigCallback(){
   needToSaveConfig = true;
 }
 
-ESP32Domotic::~ESP32Domotic(){}
+ESP32Domotic::~ESP32Domotic(){
+  delete this->config;
+  if (this->otaUpdate != nullptr) {
+    delete this->otaUpdate;
+  }
+}
 
 void ESP32Domotic::init() { 
   log("Initializing domotic module");
@@ -39,11 +44,12 @@ void ESP32Domotic::init() {
     log("Could not connect to wifi");
     ESP.restart();
   }
-  otaUpdate.init();
+  this->otaUpdate = new OTAUpdate();
+  this->otaUpdate->init();
 }
 
 void ESP32Domotic::cycle() {
-  otaUpdate.handle();
+  otaUpdate->handle();
 }
 
 bool ESP32Domotic::connectWifi() {
