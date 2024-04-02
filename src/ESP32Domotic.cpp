@@ -17,7 +17,15 @@ void saveConfigCallback(){
   needToSaveConfig = true;
 }
 
-ESP32Domotic::~ESP32Domotic(){}
+ESP32Domotic::~ESP32Domotic(){
+  delete this->config;
+  if (this->otaUpdate != nullptr) {
+    delete this->otaUpdate;
+  }
+  if (this->channelsManager != nullptr) {
+    delete this->channelsManager;
+  }
+}
 
 void ESP32Domotic::init() { 
   log("Initializing domotic module");
@@ -39,11 +47,24 @@ void ESP32Domotic::init() {
     log("Could not connect to wifi");
     ESP.restart();
   }
-  otaUpdate.init();
+  initOTAUpdate();
+  initChannelManager();
+}
+
+void ESP32Domotic::initOTAUpdate() {  
+  this->otaUpdate = new OTAUpdate();
+  this->otaUpdate->init();
+}
+
+void ESP32Domotic::initChannelManager() {  
+  this->channelsManager = new ChannelManager();
+  this->channelsManager->setConfig(this->config);
+  this->channelsManager->setChannels(this->channels);
+  this->channelsManager->init();
 }
 
 void ESP32Domotic::cycle() {
-  otaUpdate.handle();
+  otaUpdate->handle();
 }
 
 bool ESP32Domotic::connectWifi() {
@@ -104,8 +125,8 @@ bool ESP32Domotic::connectWifi() {
 }
 
 bool ESP32Domotic::addChannel(Channel *channel) {
-  if (this->channelsCount < MAX_CHANNELS) {
-    this->channels[this->channelsCount++] = channel;
+  if (this->channels.size() < MAX_CHANNELS) {
+    this->channels.push_back(*channel);
     #ifdef LOGGING
     log("Channel added", channel->getName());
     #endif
