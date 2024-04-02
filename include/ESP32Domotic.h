@@ -6,6 +6,7 @@
 #include <WebServer.h>
 #include <DNSServer.h>
 #include <PubSubClient.h>
+#include "OTAUpdate.h"
 #include "Channel.h"
 #include "ConfigDef.h"
 
@@ -21,6 +22,7 @@ class ESP32Domotic {
 
     uint8_t         channelsCount   = 0;
     const char*     moduleType      = "generic";
+    const char*     apSsid          = NULL;
 
     uint16_t        wifiConnectTimeout   = 30;
     uint16_t        configPortalTimeout  = 60;
@@ -36,18 +38,19 @@ class ESP32Domotic {
     WiFiClient          wifiClient;
     PubSubClient        mqttClient;
 
+OTAUpdate           otaUpdate;
     Channel*            channels[MAX_CHANNELS];
-    ConfigDef*          config = new ConfigDef();
+    ConfigDef*          config = new ConfigDef("/config.json");
 
     bool connectWifi();
-    
+
     public:
 
         ESP32Domotic() : mqttClient(wifiClient) {};
         ~ESP32Domotic();
 
-        void init();
-        void cycle();
+        void    init();
+        void    cycle();
 
          // Adds new channel to manage. Returns true if channel added successfuly.
         bool    addChannel(Channel* c);
@@ -56,6 +59,8 @@ class ESP32Domotic {
         void    setWifiConnectTimeout (uint16_t seconds);
         void    setConfigPortalTimeout (uint16_t seconds);
         void    setConfigFileSize (uint16_t bytes);
-};
+        void    setPortalSSID (const char* ssid);
 
+        ConfigDef*  getConfig();
+};
 #endif
