@@ -38,12 +38,11 @@ class ESP32Domotic {
     WiFiClient          wifiClient;
     PubSubClient        mqttClient;
 
-    OTAUpdate           otaUpdate;
+OTAUpdate           otaUpdate;
     Channel*            channels[MAX_CHANNELS];
     ConfigDef*          config = new ConfigDef("/config.json");
 
     bool connectWifi();
-    void configOTA();
 
     public:
 

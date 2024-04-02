@@ -26,13 +26,12 @@ void OTAUpdate::onEnd(bool success) {
 
 void OTAUpdate::init(){
   this->server.on("/", [this]() {
-    server.send(200, "text/plain", "Hi! This is ElegantOTA Demo.");
+    this->server.send(200, "text/plain", "Proeza domotic module");
   });
   ElegantOTA.begin(&this->server); 
   ElegantOTA.onStart(onStart);
   ElegantOTA.onProgress(onProgress);
   ElegantOTA.onEnd(onEnd);
-
   this->server.begin();
   log("HTTP server started");
 }
