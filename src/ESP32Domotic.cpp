@@ -11,9 +11,8 @@ void loop(){}
 
 static bool needToSaveConfig = false;
 
-//TODO chequear si funciona meter esto en la clase como static
-void saveConfigCallback(){
-  Serial.println("[CALLBACK] saveConfigCallback fired");
+void ESP32Domotic::saveConfigCallback() {
+  log("Callback saveConfigCallback fired");
   needToSaveConfig = true;
 }
 
@@ -33,7 +32,7 @@ void ESP32Domotic::init() {
   repo.init();
   if (!repo.load(this->config)) {
     log("Setting defaults. Could not load config from", this->config->getConfigFilePath());
-    this->config->updateMqttHost("192.168.1.101");
+    this->config->updateMqttHost("192.168.0.101");
     this->config->updateMqttPort("1883");
     this->config->updateModuleLocation("");
     this->config->updateModuleName("");
@@ -84,24 +83,19 @@ bool ESP32Domotic::connectWifi() {
   wm.setMinimumSignalQuality(40); // set min RSSI (percentage) to show in scans, null = 8%
   wm.setConfigPortalTimeout(this->configPortalTimeout);// auto close configportal after n seconds
   wm.setConnectTimeout(this->wifiConnectTimeout);// how long to try to connect for before continuing
-  wm.setSaveConfigCallback(saveConfigCallback);
+  wm.setSaveConfigCallback(std::bind(&ESP32Domotic::saveConfigCallback,this));
   wm.setAPClientCheck(true); // avoid timeout if client connected to softap
   wm.setCaptivePortalEnable(true); // disable captive portal redirection
-  log("WM settings done");
+  wm.setAPStaticIPConfig(IPAddress(10,10,10,10), IPAddress(10,10,10,10), IPAddress(255,255,255,0)); // set static ip,gw,sn 
+  wm.setClass("invert"); // set dark theme
 
   // custom menu via array or vector
-  // 
   // menu tokens, "wifi","wifinoscan","info","param","close","sep","erase","restart","exit" (sep is seperator) (if param is in menu, params will not show up in wifi page!)
   // const char* menu[] = {"wifi","info","param","sep","restart","exit"}; 
   // wm.setMenu(menu,6);
   //std::vector<const char *> menu = {"wifi","info","param","sep","restart","exit"};
   //wm.setMenu(menu);
 
-  // set dark theme
-  //wm.setClass("invert");
-
-  //set static ip
-  // wm.setSTAStaticIPConfig(IPAddress(10,0,1,99), IPAddress(10,0,1,1), IPAddress(255,255,255,0)); // set static ip,gw,sn
   // wm.setShowStaticFields(true); // force show static ip fields
   // wm.setShowDnsFields(true);    // force show dns field always
   
@@ -109,19 +103,18 @@ bool ESP32Domotic::connectWifi() {
   // wm.setRemoveDuplicateAPs(false); // do not remove duplicate ap names (true)
   // wm.setShowInfoErase(false);      // do not show erase button on info page
   // wm.setScanDispPerc(true);       // show RSSI as percentage not graph icons
-  
   // wm.setBreakAfterConfig(true);   // always exit configportal even if wifi save fails
-  log("Launching autoconnect");
+
+  log("WM settings done. Launching autoconnect");
   bool connected = this->apSsid ? wm.autoConnect(this->apSsid) : wm.autoConnect();
   if (connected) {
     this->config->updateMqttHost(server.getValue());
     this->config->updateMqttPort(port.getValue());
     this->config->updateModuleName(name.getValue());
     this->config->updateModuleLocation(location.getValue());
-    log("Connected!");
     return true;
   }
-  log("Could not connect");
+  log("Could not connect to wifi");
   return false;
 }
 

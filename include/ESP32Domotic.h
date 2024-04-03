@@ -54,6 +54,7 @@ class ESP32Domotic {
         void    setConfigFileSize (uint16_t bytes);
         void    setPortalSSID (const char* ssid);
 
+        void    saveConfigCallback();
         ConfigDef*  getConfig();
 };
 #endif
