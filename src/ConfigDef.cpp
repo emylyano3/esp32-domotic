@@ -29,6 +29,10 @@ char* ConfigDef::getModuleLocation(){
     return this->moduleLocation;
 }
 
+const char* ConfigDef::getModuleType(){
+    return this->moduleType;
+}
+
 void ConfigDef::updateMqttHost(const char* value) {
     strncpy(this->mqttHost, value, MQTT_HOST_PARAM_LENGTH);
 }
@@ -43,4 +47,8 @@ void ConfigDef::updateModuleName(const char* value) {
 
 void ConfigDef::updateModuleLocation(const char* value) {
     strncpy(this->moduleLocation, value, MODULE_LOCATION_PARAM_LENGTH);
+}
+
+void ConfigDef::setModuleType(const char* type) {
+  this->moduleType = type;
 }

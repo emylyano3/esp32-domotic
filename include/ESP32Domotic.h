@@ -19,7 +19,6 @@
 
 class ESP32Domotic {
 
-    const char*     moduleType      = "generic";
     const char*     apSsid          = NULL;
 
     uint16_t        wifiConnectTimeout   = 30;

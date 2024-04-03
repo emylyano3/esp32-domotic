@@ -25,6 +25,7 @@ void OTAUpdate::onEnd(bool success) {
 }
 
 void OTAUpdate::init(){
+  log("Initializing OTA Update");
   this->server.on("/", [this]() {
     this->server.send(200, "text/plain", "Proeza domotic module");
   });

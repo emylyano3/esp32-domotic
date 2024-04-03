@@ -56,7 +56,7 @@ void ESP32Domotic::initOTAUpdate() {
   this->otaUpdate->init();
 }
 
-void ESP32Domotic::initChannelManager() {  
+void ESP32Domotic::initChannelManager() {
   this->channelsManager = new ChannelManager();
   this->channelsManager->setConfig(this->config);
   this->channelsManager->setChannels(this->channels);
@@ -65,6 +65,7 @@ void ESP32Domotic::initChannelManager() {
 
 void ESP32Domotic::cycle() {
   otaUpdate->handle();
+  channelsManager->handle();
 }
 
 bool ESP32Domotic::connectWifi() {
@@ -140,7 +141,7 @@ bool ESP32Domotic::addChannel(Channel *channel) {
 }
 
 void ESP32Domotic::setModuleType(const char* type) {
-  this->moduleType = type;
+  this->config->setModuleType(type);
 }
 
 ConfigDef* ESP32Domotic::getConfig() {
