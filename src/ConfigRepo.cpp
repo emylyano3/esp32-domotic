@@ -7,7 +7,9 @@ bool ConfigRepo::init() {
     if (LittleFS.begin(true)) {
         return true;
     }
+    #ifdef LOGGING
     log("Error al inicializar el FS");
+    #endif
     return false;
 }
 
@@ -18,10 +20,14 @@ bool ConfigRepo::reset() {
 bool ConfigRepo::load(ConfigDef* config) {
     File configFile = LittleFS.open(config->getConfigFilePath(), "r");
     if (!configFile) {
+        #ifdef LOGGING
         log("failed to open file");
+        #endif
         return false;
     }
+    #ifdef LOGGING
     log("reading config file");
+    #endif
     size_t size = configFile.size();
     std::unique_ptr<char[]> buf(new char[size]);
     configFile.readBytes(buf.get(), size);
@@ -35,7 +41,9 @@ bool ConfigRepo::load(ConfigDef* config) {
         configFile.close();
         return true; 
     } else {
+        #ifdef LOGGING
         log("failed to load json config");
+        #endif
         configFile.close();
         return false; 
     }  
@@ -44,7 +52,9 @@ bool ConfigRepo::load(ConfigDef* config) {
 bool ConfigRepo::save(ConfigDef* config) {
     File configFile = LittleFS.open(config->getConfigFilePath(), "w");
     if (!configFile) {
+        #ifdef LOGGING
         log("failed to open file for writing");
+        #endif
         return false;
     }
     JsonDocument doc;
@@ -53,7 +63,9 @@ bool ConfigRepo::save(ConfigDef* config) {
     doc["location"] = config->getModuleLocation();
     doc["name"] = config->getModuleName();
     if (serializeJson(doc, configFile) == 0) {
+        #ifdef LOGGING
         log("Failed to write to file");
+        #endif
         configFile.close();
         return false;
     }

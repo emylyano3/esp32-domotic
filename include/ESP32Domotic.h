@@ -3,12 +3,11 @@
 
 #include <Arduino.h>
 #include <WiFi.h>
-#include <WebServer.h>
 #include <DNSServer.h>
-#include <PubSubClient.h>
+#include "ConfigDef.h"
 #include "OTAUpdate.h"
 #include "Channel.h"
-#include "ConfigDef.h"
+#include "ChannelManager.h"
 
 #ifndef ESP32
 #define ESP32
@@ -20,8 +19,6 @@
 
 class ESP32Domotic {
 
-    uint8_t         channelsCount   = 0;
-    const char*     moduleType      = "generic";
     const char*     apSsid          = NULL;
 
     uint16_t        wifiConnectTimeout   = 30;
@@ -31,11 +28,14 @@ class ESP32Domotic {
     unsigned long   mqttNextConnAtte     = 0;
     unsigned int    mqttReconnections    = 0;
 
-    ConfigDef*      config = new ConfigDef("/config.json");
-    OTAUpdate*      otaUpdate;
-    Channel*        channels[MAX_CHANNELS];
+    ConfigDef*              config = new ConfigDef("/config.json");
+    OTAUpdate*              otaUpdate;
+    std::vector<Channel>    channels;
+    ChannelManager*         channelsManager;
 
     bool connectWifi();
+    void initOTAUpdate();
+    void initChannelManager();
 
     public:
 
@@ -54,6 +54,7 @@ class ESP32Domotic {
         void    setConfigFileSize (uint16_t bytes);
         void    setPortalSSID (const char* ssid);
 
+        void    saveConfigCallback();
         ConfigDef*  getConfig();
 };
 #endif
