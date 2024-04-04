@@ -12,7 +12,9 @@ void loop(){}
 static bool needToSaveConfig = false;
 
 void ESP32Domotic::saveConfigCallback() {
+  #ifdef LOGGING
   log("Callback saveConfigCallback fired");
+  #endif
   needToSaveConfig = true;
 }
 
@@ -27,23 +29,31 @@ ESP32Domotic::~ESP32Domotic(){
 }
 
 void ESP32Domotic::init() { 
+  #ifdef LOGGING
   log("Initializing domotic module");
+  #endif    
   ConfigRepo repo;
   repo.init();
   if (!repo.load(this->config)) {
+    #ifdef LOGGING
     log("Setting defaults. Could not load config from", this->config->getConfigFilePath());
+    #endif   
     this->config->updateMqttHost("192.168.0.101");
     this->config->updateMqttPort("1883");
     this->config->updateModuleLocation("");
     this->config->updateModuleName("");
   }
   if (connectWifi()) {
+    #ifdef LOGGING
     log("Connected to wifi");
+    #endif   
     if (needToSaveConfig) {
       repo.save(this->config);
     }
   } else {
+    #ifdef LOGGING
     log("Could not connect to wifi");
+    #endif   
     ESP.restart();
   }
   initOTAUpdate();
@@ -68,18 +78,24 @@ void ESP32Domotic::cycle() {
 }
 
 bool ESP32Domotic::connectWifi() {
+  #ifdef LOGGING
   log("Connecting wifi");
+  #endif   
   WiFiManagerParameter server("server", "mqtt server", this->config->getMqttHost(), MQTT_HOST_PARAM_LENGTH);
   WiFiManagerParameter port("port", "mqtt port", this->config->getMqttPort(), MQTT_PORT_PARAM_LENGTH);
   WiFiManagerParameter name("name", "module name", this->config->getModuleName(), MODULE_NAME_PARAM_LENGTH);
   WiFiManagerParameter location("location", "module location", this->config->getModuleLocation(), MODULE_LOCATION_PARAM_LENGTH);
+  #ifdef LOGGING
   log("Params created");
+  #endif   
   WiFiManager wm;
   wm.addParameter(&server);
   wm.addParameter(&port);
   wm.addParameter(&name);
   wm.addParameter(&location);
+  #ifdef LOGGING
   log("WM created & Params added");
+  #endif   
   wm.setMinimumSignalQuality(40); // set min RSSI (percentage) to show in scans, null = 8%
   wm.setConfigPortalTimeout(this->configPortalTimeout);// auto close configportal after n seconds
   wm.setConnectTimeout(this->wifiConnectTimeout);// how long to try to connect for before continuing
@@ -104,8 +120,9 @@ bool ESP32Domotic::connectWifi() {
   // wm.setShowInfoErase(false);      // do not show erase button on info page
   // wm.setScanDispPerc(true);       // show RSSI as percentage not graph icons
   // wm.setBreakAfterConfig(true);   // always exit configportal even if wifi save fails
-
+  #ifdef LOGGING
   log("WM settings done. Launching autoconnect");
+  #endif   
   bool connected = this->apSsid ? wm.autoConnect(this->apSsid) : wm.autoConnect();
   if (connected) {
     this->config->updateMqttHost(server.getValue());
@@ -114,7 +131,9 @@ bool ESP32Domotic::connectWifi() {
     this->config->updateModuleLocation(location.getValue());
     return true;
   }
+  #ifdef LOGGING
   log("Could not connect to wifi");
+  #endif   
   return false;
 }
 

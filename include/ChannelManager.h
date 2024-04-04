@@ -2,7 +2,6 @@
 #define CHANNEL_MANAGER_H
 
 #include <vector>
-#include <functional>
 #include <WiFi.h>
 #include <PubSubClient.h>
 #include "Channel.h"
@@ -15,8 +14,6 @@
 #define MQTT_RECONNECTION_RETRY_WAIT_MILLIS 10 * 1000
 #endif
 
-// using MqttCallbackFunction = std::function<void(char*, uint8_t*, unsigned int)>;
-
 class ChannelManager {
     private:
         unsigned long           mqttNextConnAtte     = 0;
@@ -26,12 +23,11 @@ class ChannelManager {
         ConfigDef*              config; 
         PubSubClient*           pubsubClient;
         std::vector<Channel>    channels;
-        // MqttCallbackFunction    mqttCallback;
 
         void        connectBroker();
         
-        String      getStationTopic(String suffix);
-        String      getChannelTopic (uint8_t channelIndex, String suffix);
+        const char* getChannelTopic(uint8_t, const char*);
+        const char* getStationTopic(const char*);
         Channel*    getChannel(uint8_t i);
         const char* getStationName();
 
@@ -43,7 +39,6 @@ class ChannelManager {
         void handle();
         void setChannels(std::vector<Channel>&);
         void setConfig(ConfigDef*);
-        // void setMqttCallback(MqttCallbackFunction);
         void receiveMqttMessage(char*, uint8_t*, unsigned int);
 };
 

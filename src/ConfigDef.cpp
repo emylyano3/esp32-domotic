@@ -5,9 +5,7 @@ ConfigDef::ConfigDef(const char* fileLocation) {
     this->configFilePath = fileLocation;
 }
 
-ConfigDef::~ConfigDef() {
-    
-}
+ConfigDef::~ConfigDef() {}
 
 const char* ConfigDef::getConfigFilePath(){
     return this->configFilePath;
