@@ -86,6 +86,10 @@ char* Channel::getName() {
   return this->name;
 }
 
+unsigned long Channel::getTimer() {
+  return this->timer;
+}
+
 int Channel::getPrevState() {
   return this->prevState;
 }

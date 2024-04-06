@@ -64,7 +64,8 @@ class Channel {
         int     getRawState();
         void    setState(int state);
         char*   getName();
-
+        unsigned long getTimer();
+        
         // Sets the mapper to map the channel state
         void    setStateMapper(std::function<int(int)> mapper);
 };

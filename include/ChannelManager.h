@@ -26,10 +26,18 @@ class ChannelManager {
 
         void        connectBroker();
         
-        const char* getChannelTopic(uint8_t, const char*);
-        const char* getStationTopic(const char*);
+        void        moduleHardReset ();
+        void        moduleSoftReset ();
+        void        saveChannelsSettings();
+        bool        enableChannelCommand(Channel*, uint8_t*, unsigned int);
+        bool        updateChannelTimerCommand(Channel*, uint8_t*, unsigned int);
+        bool        renameChannelCommand(Channel*, uint8_t*, unsigned int);
+        void        changeOutputChannelStateCommand(Channel*, uint8_t*, unsigned int);
+
+        std::string getChannelTopic(uint8_t, const char*);
+        std::string getStationTopic(const char*);
+        std::string getStationName();
         Channel*    getChannel(uint8_t i);
-        const char* getStationName();
 
     public:
         ChannelManager(){};
