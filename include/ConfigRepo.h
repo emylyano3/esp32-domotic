@@ -2,12 +2,14 @@
 #define ConfigRepo_h
 
 #include "ConfigDef.h"
+#include "Channel.h"
 
 class ConfigRepo {
     public:
         bool reset();
         bool init();
-        bool load(ConfigDef* config);
-        bool save(ConfigDef* config);
+        bool load(ConfigDef*);
+        bool save(ConfigDef*);
+        bool save(std::vector<Channel>);
 };
 #endif

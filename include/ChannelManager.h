@@ -20,7 +20,7 @@ class ChannelManager {
         unsigned int            mqttReconnections    = 0;
 
         WiFiClient              wifiClient;
-        ConfigDef*              config; 
+        ConfigDef*              config;
         PubSubClient*           pubsubClient;
         std::vector<Channel>    channels;
 

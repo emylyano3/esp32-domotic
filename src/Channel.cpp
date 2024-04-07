@@ -86,6 +86,10 @@ char* Channel::getName() {
   return this->name;
 }
 
+const char* Channel::getId() {
+  return this->id;
+}
+
 unsigned long Channel::getTimer() {
   return this->timer;
 }

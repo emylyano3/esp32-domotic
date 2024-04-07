@@ -60,11 +60,12 @@ class Channel {
             Returns the channel current state mapped, according to the mapper function defined.
             If no mapper defined, plain value is returned instead
         */
-        int     getMappedState();
-        int     getRawState();
-        void    setState(int state);
-        char*   getName();
-        unsigned long getTimer();
+        int             getMappedState();
+        int             getRawState();
+        void            setState(int state);
+        const char*     getId();
+        char*           getName();
+        unsigned long   getTimer();
         
         // Sets the mapper to map the channel state
         void    setStateMapper(std::function<int(int)> mapper);

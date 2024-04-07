@@ -1,5 +1,6 @@
 #include <ArduinoJson.h> 
 #include <LittleFS.h>
+#include <vector>
 #include "ConfigRepo.h"
 #include "Logger.h"
 
@@ -71,4 +72,28 @@ bool ConfigRepo::save(ConfigDef* config) {
     }
     configFile.close();
     return true;
+}
+
+bool ConfigRepo::save(std::vector<Channel> channels) {
+    File file = LittleFS.open("/channels.json", "w");
+    if (file) {
+        JsonDocument doc;
+        for (uint8_t i = 0; i < channels.size(); ++i) {
+            doc[String(channels[i].getId()) + "_n"] = channels[i].getName();
+            doc[String(channels[i].getId()) + "_t"] = channels[i].getTimer();
+            doc[String(channels[i].getId()) + "_e"] = channels[i].isEnabled();
+        }
+        serializeJson(doc, file);
+        #ifdef LOGGING
+        log("Configuration file saved");
+        serializeJsonPretty(doc, Serial);
+        #endif
+        file.close();
+        return true;
+    } else {
+        #ifdef LOGGING
+        log("Failed to open config file for writing");
+        #endif
+        return false;
+    }
 }

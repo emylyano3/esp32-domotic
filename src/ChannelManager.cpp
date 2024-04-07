@@ -2,6 +2,7 @@
 #include <LittleFS.h>
 #include "ChannelManager.h"
 #include "Logger.h"
+#include "ConfigRepo.h"
 #include "Utils.h"
 
 ChannelManager::~ChannelManager() {
@@ -111,6 +112,8 @@ void ChannelManager::saveChannelsSettings() {
     #ifdef LOGGING
     log("Saving channels settings");
     #endif
+    ConfigRepo repo;
+    repo.save(this->channels);
 }
 
 void ChannelManager::moduleHardReset () {
