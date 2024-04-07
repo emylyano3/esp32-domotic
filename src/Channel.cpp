@@ -54,6 +54,10 @@ void Channel::setTimer(uint32_t time) {
   this->timer = time;
 }
 
+void Channel::setEnabled(bool enabled) {
+  this->enabled = enabled;
+}
+
 void Channel::setAnalog(bool analog) {
   this->analog = analog;
 } 
