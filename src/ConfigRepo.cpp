@@ -74,8 +74,8 @@ bool ConfigRepo::save(ConfigDef* config) {
     return true;
 }
 
-bool ConfigRepo::save(std::vector<Channel>& channels) {
-    File file = LittleFS.open("/channels.json", "w");
+bool ConfigRepo::save(ConfigDef* config, std::vector<Channel>& channels) {
+    File file = LittleFS.open(config->getChannelsFilePath(), "w");
     if (file) {
         JsonDocument doc;
         for (uint8_t i = 0; i < channels.size(); ++i) {
@@ -85,8 +85,9 @@ bool ConfigRepo::save(std::vector<Channel>& channels) {
         }
         serializeJson(doc, file);
         #ifdef LOGGING
-        log("Configuration file saved");
+        log("Channel configuration file saved");
         serializeJsonPretty(doc, Serial);
+        Serial.println();
         #endif
         file.close();
         return true;

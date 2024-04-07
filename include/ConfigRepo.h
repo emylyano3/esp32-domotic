@@ -10,6 +10,6 @@ class ConfigRepo {
         bool init();
         bool load(ConfigDef*);
         bool save(ConfigDef*);
-        bool save(std::vector<Channel>&);
+        bool save(ConfigDef*, std::vector<Channel>&);
 };
 #endif

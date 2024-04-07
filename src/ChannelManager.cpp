@@ -126,7 +126,7 @@ void ChannelManager::saveChannelsSettings() {
     log("Saving channels settings");
     #endif
     ConfigRepo repo;
-    repo.save(this->channels);
+    repo.save(this->config, this->channels);
 }
 
 void ChannelManager::moduleHardReset () {

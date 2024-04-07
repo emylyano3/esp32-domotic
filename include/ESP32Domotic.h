@@ -19,16 +19,16 @@
 
 class ESP32Domotic {
 
-    const char*     apSsid          = NULL;
+    const char*     apSsid              = NULL;
 
-    uint16_t        wifiConnectTimeout   = 30;
-    uint16_t        configPortalTimeout  = 60;
-    uint16_t        configFileSize       = 200;
+    uint16_t        wifiConnectTimeout  = 30;
+    uint16_t        configPortalTimeout = 60;
+    uint16_t        configFileSize      = 200;
 
-    unsigned long   mqttNextConnAtte     = 0;
-    unsigned int    mqttReconnections    = 0;
+    unsigned long   mqttNextConnAtte    = 0;
+    unsigned int    mqttReconnections   = 0;
 
-    ConfigDef*              config = new ConfigDef("/config.json");
+    ConfigDef*              config = new ConfigDef("/config.json", "/channels.json");
     OTAUpdate*              otaUpdate;
     std::vector<Channel>    channels;
     ChannelManager*         channelsManager;
