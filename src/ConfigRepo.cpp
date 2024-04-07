@@ -74,7 +74,7 @@ bool ConfigRepo::save(ConfigDef* config) {
     return true;
 }
 
-bool ConfigRepo::save(std::vector<Channel> channels) {
+bool ConfigRepo::save(std::vector<Channel>& channels) {
     File file = LittleFS.open("/channels.json", "w");
     if (file) {
         JsonDocument doc;
