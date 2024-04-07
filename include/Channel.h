@@ -31,7 +31,7 @@ class Channel {
         Channel(const char* id, const char* name, uint8_t pin, uint8_t pinMode, bool analog, bool inverted);
 
         // Updates the channel´s name
-        void    updateName (const char *v);
+        bool    updateName (const char *v);
 
         // Set the value in channel and writes it over the device pin
         void    write(int value);
@@ -52,7 +52,6 @@ class Channel {
         bool    isAnalog();
         void    setAnalog(bool analog);
         bool    isEnabled();
-        void    setEnabled(bool enabled);
         void    setTimer(uint32_t time);
 
         int     getPrevState();

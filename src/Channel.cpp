@@ -1,5 +1,6 @@
 #include "Channel.h"
 #include "Logger.h"
+#include "Utils.h"
 
 Channel::Channel(const char* id, const char* name, uint8_t pin, uint8_t pinMode, bool analog, bool inverted) {
   this->id = id;
@@ -12,8 +13,21 @@ Channel::Channel(const char* id, const char* name, uint8_t pin, uint8_t pinMode,
   this->timerControl = pinMode == OUTPUT ? 0 : timer;
 }
 
-void Channel::updateName (const char *v) {
-  String(v).toCharArray(this->name, CHANNEL_NAME_MAX_LENGTH);
+bool Channel::updateName (const char *name) {
+  if (strlen(name) > CHANNEL_NAME_MAX_LENGTH) {
+    #ifdef LOGGING
+    log("Channel new name too long");
+    #endif
+    return false;
+  }
+  // if (Utils::equals(this->name, name)) {
+    // #ifdef LOGGING
+    // log("Channel new name same as previous");
+    // #endif
+  //   return false;
+  // }
+  Utils::copy(this->name, name, CHANNEL_NAME_MAX_LENGTH);
+  return true;
 }
 
 void Channel::updateTimerControl() {

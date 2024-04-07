@@ -9,4 +9,8 @@ class Utils {
         static std::string concat(char* a, const char* b) {
             return std::string(a) + b;
         }
+
+        static void copy(char* a, const char* b, uint16_t size) {
+            String(b).toCharArray(a, size);
+        }
 };

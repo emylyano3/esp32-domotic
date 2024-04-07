@@ -35,6 +35,7 @@ class ChannelManager {
         void        changeOutputChannelStateCommand(Channel*, uint8_t*, unsigned int);
 
         std::string getChannelTopic(uint8_t, const char*);
+        std::string getChannelTopic(Channel*, const char*);
         std::string getStationTopic(const char*);
         std::string getStationName();
         Channel*    getChannel(uint8_t i);
