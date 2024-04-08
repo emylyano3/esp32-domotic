@@ -20,9 +20,9 @@ class ChannelManager {
         unsigned int            mqttReconnections    = 0;
 
         WiFiClient              wifiClient;
-        ConfigDef*              config; 
+        ConfigDef*              config;
         PubSubClient*           pubsubClient;
-        std::vector<Channel>    channels;
+        std::vector<Channel*>   channels;
 
         void        connectBroker();
         
@@ -35,6 +35,7 @@ class ChannelManager {
         void        changeOutputChannelStateCommand(Channel*, uint8_t*, unsigned int);
 
         std::string getChannelTopic(uint8_t, const char*);
+        std::string getChannelTopic(Channel*, const char*);
         std::string getStationTopic(const char*);
         std::string getStationName();
         Channel*    getChannel(uint8_t i);
@@ -45,7 +46,7 @@ class ChannelManager {
 
         void init();
         void handle();
-        void setChannels(std::vector<Channel>&);
+        void setChannels(std::vector<Channel*>&);
         void setConfig(ConfigDef*);
         void receiveMqttMessage(char*, uint8_t*, unsigned int);
 };

@@ -1,14 +1,19 @@
 #include <string.h> 
 #include "ConfigDef.h"
 
-ConfigDef::ConfigDef(const char* fileLocation) {
-    this->configFilePath = fileLocation;
+ConfigDef::ConfigDef(const char* configFileLocation, const char* channelsFileLocation) {
+    this->configFilePath = configFileLocation;
+    this->channelsFilePath = channelsFileLocation;
 }
 
 ConfigDef::~ConfigDef() {}
 
 const char* ConfigDef::getConfigFilePath(){
     return this->configFilePath;
+}
+
+const char* ConfigDef::getChannelsFilePath(){
+    return this->channelsFilePath;
 }
 
 char* ConfigDef::getMqttHost(){

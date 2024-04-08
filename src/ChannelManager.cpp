@@ -2,6 +2,7 @@
 #include <LittleFS.h>
 #include "ChannelManager.h"
 #include "Logger.h"
+#include "ConfigRepo.h"
 #include "Utils.h"
 
 ChannelManager::~ChannelManager() {
@@ -31,7 +32,7 @@ void ChannelManager::handle() {
     }
 }
 
-void ChannelManager::setChannels(std::vector<Channel>& channels) {
+void ChannelManager::setChannels(std::vector<Channel*>& channels) {
     this->channels = channels;
 }
 
@@ -50,9 +51,7 @@ void ChannelManager::receiveMqttMessage(char* topic, uint8_t* payload, unsigned 
     } else {
         for (size_t i = 0; i < this->channels.size(); ++i) {
             Channel *channel = getChannel(i);
-            const char* a = Utils::concat(channel->getName(), "/command/enable").c_str();
-            Serial.printf("Concatenado: %s\n", a);
-            if (Utils::endsWith(topic, a)) {
+            if (Utils::endsWith(topic, Utils::concat(channel->getName(), "/command/enable").c_str())) {
                 if (enableChannelCommand(channel, payload, length)) {
                     saveChannelsSettings();
                 }
@@ -82,9 +81,34 @@ void ChannelManager::receiveMqttMessage(char* topic, uint8_t* payload, unsigned 
 
 bool ChannelManager::enableChannelCommand(Channel* channel, uint8_t* payload, unsigned int length) {
     #ifdef LOGGING
-    // log("Enabling channel", channel->getName());
+    log("Updating channel enablement", channel->getName());
     #endif
-    return true;
+    if (length != 1 || !payload) {
+        #ifdef LOGGING
+        log("Invalid payload. Ignoring.");
+        #endif
+        return false;
+    }
+    bool stateChanged = false;
+    switch (payload[0]) {
+        case '0':
+            stateChanged = channel->isEnabled();
+            channel->setEnabled(false);
+            break;
+        case '1':
+            stateChanged = !channel->isEnabled();
+            channel->setEnabled(true);
+            break;
+        default:
+            #ifdef LOGGING
+            log("Invalid state", payload[0]);
+            #endif
+            break;
+    }
+    #ifdef LOGGING
+    log("Same state. No update done.");
+    #endif
+    return stateChanged;
 }
 
 bool ChannelManager::updateChannelTimerCommand(Channel* channel, uint8_t* payload, unsigned int length) {
@@ -98,7 +122,22 @@ bool ChannelManager::renameChannelCommand(Channel* channel, uint8_t* payload, un
     #ifdef LOGGING
     log("Renaming channel", channel->getName());
     #endif
-    return true;
+    if (length < 1 || !payload) {
+        #ifdef LOGGING
+        log("Invalid payload in rename channel");
+        #endif
+        return false;
+    }
+    char buffer[length + 1];
+    strncpy(buffer, (char*)payload, length);
+    buffer[length] = '\0';
+    if (channel->updateName(buffer)) {
+        this->pubsubClient->unsubscribe(getChannelTopic(channel, "command/+").c_str());
+        delay(200);
+        this->pubsubClient->subscribe(getChannelTopic(channel, "command/+").c_str());
+        return true;
+    }
+    return false;
 }
 
 void ChannelManager::changeOutputChannelStateCommand(Channel* channel, uint8_t* payload, unsigned int length) {
@@ -111,6 +150,8 @@ void ChannelManager::saveChannelsSettings() {
     #ifdef LOGGING
     log("Saving channels settings");
     #endif
+    ConfigRepo repo;
+    repo.save(this->config, this->channels);
 }
 
 void ChannelManager::moduleHardReset () {
@@ -178,6 +219,10 @@ std::string ChannelManager::getStationTopic(const char* suffix) {
 }
 
 std::string ChannelManager::getChannelTopic(uint8_t channelIndex, const char* suffix) {
+    return getChannelTopic(getChannel(channelIndex), suffix);
+}
+
+std::string ChannelManager::getChannelTopic(Channel* channel, const char* suffix) {
     std::string channelTopic;
     channelTopic += this->config->getModuleType();
     channelTopic += '/';
@@ -185,7 +230,7 @@ std::string ChannelManager::getChannelTopic(uint8_t channelIndex, const char* su
     channelTopic += '/';
     channelTopic += this->config->getModuleName();
     channelTopic += '/';
-    channelTopic += getChannel(channelIndex)->getName();
+    channelTopic += channel->getName();
     channelTopic += '/';
     channelTopic += suffix;
     return channelTopic;
@@ -202,7 +247,7 @@ std::string ChannelManager::getStationName() {
 
 Channel* ChannelManager::getChannel(uint8_t i) {
     if (i < this->channels.size()) {
-    return &this->channels[i];
+        return this->channels[i];
     }
     return NULL;
 }

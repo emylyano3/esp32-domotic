@@ -31,10 +31,10 @@ class Channel {
         Channel(const char* id, const char* name, uint8_t pin, uint8_t pinMode, bool analog, bool inverted);
 
         // Updates the channel´s name
-        void    updateName (const char *v);
+        bool    updateName (const char*);
 
         // Set the value in channel and writes it over the device pin
-        void    write(int value);
+        void    write(int);
 
         /*
             Read the value from the pin related to the channel, and updates the channel state.
@@ -50,21 +50,22 @@ class Channel {
         /** Getters & setters*/
         bool    isOutput();
         bool    isAnalog();
-        void    setAnalog(bool analog);
+        void    setAnalog(bool);
         bool    isEnabled();
-        void    setEnabled(bool enabled);
-        void    setTimer(uint32_t time);
+        void    setEnabled(bool);
+        void    setTimer(uint32_t);
 
         int     getPrevState();
         /* 
             Returns the channel current state mapped, according to the mapper function defined.
             If no mapper defined, plain value is returned instead
         */
-        int     getMappedState();
-        int     getRawState();
-        void    setState(int state);
-        char*   getName();
-        unsigned long getTimer();
+        int             getMappedState();
+        int             getRawState();
+        void            setState(int);
+        const char*     getId();
+        char*           getName();
+        unsigned long   getTimer();
         
         // Sets the mapper to map the channel state
         void    setStateMapper(std::function<int(int)> mapper);
