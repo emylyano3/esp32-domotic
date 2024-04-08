@@ -32,7 +32,7 @@ void ChannelManager::handle() {
     }
 }
 
-void ChannelManager::setChannels(std::vector<Channel>& channels) {
+void ChannelManager::setChannels(std::vector<Channel*>& channels) {
     this->channels = channels;
 }
 
@@ -81,9 +81,34 @@ void ChannelManager::receiveMqttMessage(char* topic, uint8_t* payload, unsigned 
 
 bool ChannelManager::enableChannelCommand(Channel* channel, uint8_t* payload, unsigned int length) {
     #ifdef LOGGING
-    // log("Enabling channel", channel->getName());
+    log("Updating channel enablement", channel->getName());
     #endif
-    return true;
+    if (length != 1 || !payload) {
+        #ifdef LOGGING
+        log("Invalid payload. Ignoring.");
+        #endif
+        return false;
+    }
+    bool stateChanged = false;
+    switch (payload[0]) {
+        case '0':
+            stateChanged = channel->isEnabled();
+            channel->setEnabled(false);
+            break;
+        case '1':
+            stateChanged = !channel->isEnabled();
+            channel->setEnabled(true);
+            break;
+        default:
+            #ifdef LOGGING
+            log("Invalid state", payload[0]);
+            #endif
+            break;
+    }
+    #ifdef LOGGING
+    log("Same state. No update done.");
+    #endif
+    return stateChanged;
 }
 
 bool ChannelManager::updateChannelTimerCommand(Channel* channel, uint8_t* payload, unsigned int length) {
@@ -97,7 +122,7 @@ bool ChannelManager::renameChannelCommand(Channel* channel, uint8_t* payload, un
     #ifdef LOGGING
     log("Renaming channel", channel->getName());
     #endif
-    if (length < 1) {
+    if (length < 1 || !payload) {
         #ifdef LOGGING
         log("Invalid payload in rename channel");
         #endif
@@ -222,7 +247,7 @@ std::string ChannelManager::getStationName() {
 
 Channel* ChannelManager::getChannel(uint8_t i) {
     if (i < this->channels.size()) {
-        return &this->channels[i];
+        return this->channels[i];
     }
     return NULL;
 }

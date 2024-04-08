@@ -11,7 +11,7 @@ class ConfigRepo {
         bool reset();
         bool load(ConfigDef*);
         bool save(ConfigDef*);
-        bool save(ConfigDef*, std::vector<Channel>&);
-        bool load(ConfigDef*, std::vector<Channel>&);
+        bool save(ConfigDef*, std::vector<Channel*>&);
+        bool load(ConfigDef*, std::vector<Channel*>&);
 };
 #endif

@@ -137,9 +137,9 @@ bool ESP32Domotic::connectWifi() {
   return false;
 }
 
-bool ESP32Domotic::addChannel(Channel *channel) {
+bool ESP32Domotic::addChannel(Channel* channel) {
   if (this->channels.size() < MAX_CHANNELS) {
-    this->channels.push_back(*channel);
+    this->channels.push_back(channel);
     #ifdef LOGGING
     log("Channel added", channel->getName());
     #endif

@@ -77,14 +77,14 @@ bool ConfigRepo::save(ConfigDef* config) {
     return true;
 }
 
-bool ConfigRepo::save(ConfigDef* config, std::vector<Channel>& channels) {
+bool ConfigRepo::save(ConfigDef* config, std::vector<Channel*>& channels) {
     File file = LittleFS.open(config->getChannelsFilePath(), "w");
     if (file) {
         JsonDocument doc;
         for (uint8_t i = 0; i < channels.size(); ++i) {
-            doc[String(channels[i].getId()) + "_n"] = channels[i].getName();
-            doc[String(channels[i].getId()) + "_t"] = channels[i].getTimer();
-            doc[String(channels[i].getId()) + "_e"] = channels[i].isEnabled();
+            doc[String(channels[i]->getId()) + "_n"] = channels[i]->getName();
+            doc[String(channels[i]->getId()) + "_t"] = channels[i]->getTimer();
+            doc[String(channels[i]->getId()) + "_e"] = channels[i]->isEnabled();
         } 
         serializeJson(doc, file);
         #ifdef LOGGING
@@ -102,7 +102,7 @@ bool ConfigRepo::save(ConfigDef* config, std::vector<Channel>& channels) {
     }
 }
 
-bool ConfigRepo::load(ConfigDef* config, std::vector<Channel>& channels) {
+bool ConfigRepo::load(ConfigDef* config, std::vector<Channel*>& channels) {
     File configFile = LittleFS.open(config->getChannelsFilePath(), "r");
      if (!configFile) {
         #ifdef LOGGING
@@ -122,9 +122,9 @@ bool ConfigRepo::load(ConfigDef* config, std::vector<Channel>& channels) {
         Serial.println();
         #endif
         for (uint8_t i = 0; i < channels.size(); ++i) {
-            channels[i].updateName(doc[Utils::concat(channels[i].getId(), "_n")]);
-            channels[i].setTimer(doc[Utils::concat(channels[i].getId(), "_t")]);
-            channels[i].setEnabled(doc[Utils::concat(channels[i].getId(), "_e")]);
+            channels[i]->updateName(doc[Utils::concat(channels[i]->getId(), "_n")]);
+            channels[i]->setTimer(doc[Utils::concat(channels[i]->getId(), "_t")]);
+            channels[i]->setEnabled(doc[Utils::concat(channels[i]->getId(), "_e")]);
         }
         configFile.close();
         return true; 

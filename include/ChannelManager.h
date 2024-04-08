@@ -22,7 +22,7 @@ class ChannelManager {
         WiFiClient              wifiClient;
         ConfigDef*              config;
         PubSubClient*           pubsubClient;
-        std::vector<Channel>    channels;
+        std::vector<Channel*>   channels;
 
         void        connectBroker();
         
@@ -46,7 +46,7 @@ class ChannelManager {
 
         void init();
         void handle();
-        void setChannels(std::vector<Channel>&);
+        void setChannels(std::vector<Channel*>&);
         void setConfig(ConfigDef*);
         void receiveMqttMessage(char*, uint8_t*, unsigned int);
 };

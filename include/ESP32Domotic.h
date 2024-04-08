@@ -30,7 +30,7 @@ class ESP32Domotic {
 
     ConfigDef*              config = new ConfigDef("/config.json", "/channels.json");
     OTAUpdate*              otaUpdate;
-    std::vector<Channel>    channels;
+    std::vector<Channel*>   channels;
     ChannelManager*         channelsManager;
 
     bool connectWifi();
@@ -48,13 +48,12 @@ class ESP32Domotic {
          // Adds new channel to manage. Returns true if channel added successfuly.
         bool    addChannel(Channel* c);
         void    setModuleType(const char* type);
-
         void    setWifiConnectTimeout (uint16_t seconds);
         void    setConfigPortalTimeout (uint16_t seconds);
         void    setConfigFileSize (uint16_t bytes);
         void    setPortalSSID (const char* ssid);
-
         void    saveConfigCallback();
+
         ConfigDef*  getConfig();
 };
 #endif

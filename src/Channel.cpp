@@ -39,6 +39,7 @@ bool Channel::timeIsUp() {
 }
 
 bool Channel::isEnabled () {
+  log("IS Enabled", this->enabled);
   return this->enabled && this->name != NULL && strlen(this->name) > 0;
 }
 
@@ -55,6 +56,7 @@ void Channel::setTimer(uint32_t time) {
 }
 
 void Channel::setEnabled(bool enabled) {
+  log("Enabled", enabled);
   this->enabled = enabled;
 }
 
