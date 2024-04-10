@@ -69,11 +69,20 @@ void ChannelManager::receiveMqttMessage(char* topic, uint8_t* payload, unsigned 
             } else if (Utils::endsWith(topic, Utils::concat(channel->getName(), "/command/state").c_str())) {
                 // command/state topic is used to change the state on the channel with a desired value. So, receiving a mqtt
                 // message with this purpose has sense only if the channel is an output one.
-                if (channel->isEnabled() && channel->isOutput()) {
-                    changeOutputChannelStateCommand(channel, payload, length);
+                if (channel->isOutput()) {
+                    if (!changeOutputChannelStateCommand(channel, payload, length)) {
+                        log("Channel not updated");
+                    }
+                } else {
+                    log("Can not change state on input channel");
                 }
-                //TODO REvisar si debe ser mappedState o rawState 
-                this->pubsubClient->publish(getChannelTopic(i, "feedback/state").c_str(), channel->getMappedState() == LOW ? "1" : "0");
+                this->pubsubClient->publish(getChannelTopic(i, "feedback/state").c_str(), channel->getLogicState());
+            } else if (Utils::endsWith(topic, Utils::concat(channel->getName(), "/command/read").c_str())) {
+                if (!channel->isOutput()) {
+                    
+                } else {
+                    log("Can not read state from output channel");
+                }
             }
         }
     }
@@ -115,7 +124,24 @@ bool ChannelManager::updateChannelTimerCommand(Channel* channel, uint8_t* payloa
     #ifdef LOGGING
     log("Updating channel timer", channel->getName());
     #endif
-    return true;
+    if (length < 1 || !payload) {
+        #ifdef LOGGING
+        log("Invalid payload");
+        #endif
+        return false;
+    }
+    char buff[length + 1];
+    for (uint16_t i = 0 ; i < length; ++ i) {
+        buff[i] = payload[i];
+    }
+    buff[length] = '\0';
+    long newTimer = Utils::toInt(buff) * 1000; // received in seconds set in millis
+    #ifdef LOGGING
+    log("New timer in seconds", newTimer);
+    #endif
+    bool timerChanged = channel->getTimer() != newTimer;
+    channel->setTimer(newTimer);
+    return timerChanged;
 }
 
 bool ChannelManager::renameChannelCommand(Channel* channel, uint8_t* payload, unsigned int length) {
@@ -140,10 +166,36 @@ bool ChannelManager::renameChannelCommand(Channel* channel, uint8_t* payload, un
     return false;
 }
 
-void ChannelManager::changeOutputChannelStateCommand(Channel* channel, uint8_t* payload, unsigned int length) {
+bool ChannelManager::changeOutputChannelStateCommand(Channel* channel, uint8_t* payload, unsigned int length) {
     #ifdef LOGGING
     log("Changing channel state", channel->getName());
     #endif
+    if (length < 1 || !payload) {
+        #ifdef LOGGING
+        log("Invalid payload");
+        #endif
+        return false;
+    }
+    if (!channel->isEnabled()) {
+        #ifdef LOGGING
+        log("Channel is disabled");
+        #endif
+        return false;
+    }
+    //TODO delegarle la interpretacion del payload al channel (a traves del ingoing value mapper) 
+    // a traves de la funcion  de mapeo. La funcion ya deberia resolver la logica invertida (si aplica)
+    return updateChannelState(channel, Utils::mqttPayloadToBinaryState(payload, length));
+}
+
+bool ChannelManager::updateChannelState (Channel* channel, int state) {
+    if (channel->getPhysicalState() == state) {
+        #ifdef LOGGING
+        log("Channel is in same state, skipping", state);
+        #endif
+        return false;
+    } 
+    channel->write(state);
+    return true;
 }
 
 void ChannelManager::saveChannelsSettings() {

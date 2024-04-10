@@ -17,4 +17,20 @@ class Utils {
         static void copy(char* a, const char* b, uint16_t size) {
             String(b).toCharArray(a, size);
         }
+
+        static int toInt(char* s) {
+            return String(s).toInt();
+        }
+ 
+        static int mqttPayloadToInt(uint8_t* payload, unsigned int length) {
+            int value = 0;
+            for (int i = 0; i < length; i++) {
+                value = value * 10 + (payload[i] - '0');
+            }
+            return value;
+        }
+
+        static uint8_t mqttPayloadToBinaryState(uint8_t* payload, unsigned int length) {
+            return *payload > 0 ? 1 : 0;
+        }
 };

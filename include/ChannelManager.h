@@ -32,8 +32,9 @@ class ChannelManager {
         bool        enableChannelCommand(Channel*, uint8_t*, unsigned int);
         bool        updateChannelTimerCommand(Channel*, uint8_t*, unsigned int);
         bool        renameChannelCommand(Channel*, uint8_t*, unsigned int);
-        void        changeOutputChannelStateCommand(Channel*, uint8_t*, unsigned int);
-
+        bool        changeOutputChannelStateCommand(Channel*, uint8_t*, unsigned int);
+        bool        updateChannelState(Channel*, int );
+        
         std::string getChannelTopic(uint8_t, const char*);
         std::string getChannelTopic(Channel*, const char*);
         std::string getStationTopic(const char*);

@@ -12,23 +12,26 @@ static const uint32_t   NO_TIMER = -1;
 class Channel {
     private:
         //unmutable
-        const char*             id;
-        char*                   name;
-        uint8_t                 pin;
-        uint8_t                 pinMode;
-        bool                    analog;
-        bool                    inverted;
+        const char*     id;
+        char*           name;
+        uint8_t         pin;
+        uint8_t         pinMode;
+        bool            analog;
 
         //mutable
-        int                     currState = -1;
-        int                     prevState = -1;
-        bool                    enabled = true;
-        unsigned long           timer = NO_TIMER;
-        unsigned long           timerControl;
-        std::function<int(int)> valueMapper;
+        int             currState = -1;
+        int             prevState = -1;
+        bool            enabled = true;
+        unsigned long   timer = NO_TIMER;
+        unsigned long   timerControl;
+
+        //TODO Agregar el mapeo del value del channel de entrada y salida (para los diferentes tipos de canales)
+        // separando en sub clases el comportamiento de input y output channel para mantener la logica simpls 
+        // std::function<int(int)>         outgoingValueMapper;
+        // std::function<int(byte*, int)>  ingoingValueMapper;
 
     public:
-        Channel(const char* id, const char* name, uint8_t pin, uint8_t pinMode, bool analog, bool inverted);
+        Channel(const char* id, const char* name, uint8_t pin, uint8_t pinMode, bool analog);
 
         // Updates the channel´s name
         bool    updateName (const char*);
@@ -43,8 +46,8 @@ class Channel {
         bool    read();
 
         /** Timer control */
-        // Updates the timer control setting it to timer time ftom now
-        void    updateTimerControl();
+        // resets the timer control setting it to timer time ftom now
+        void    resetTimerControl();
         bool    timeIsUp();
 
         /** Getters & setters*/
@@ -60,15 +63,15 @@ class Channel {
             Returns the channel current state mapped, according to the mapper function defined.
             If no mapper defined, plain value is returned instead
         */
-        int             getMappedState();
-        int             getRawState();
+        const char*     getLogicState();
+        int             getPhysicalState();
         void            setState(int);
         const char*     getId();
         char*           getName();
         unsigned long   getTimer();
         
         // Sets the mapper to map the channel state
-        void    setStateMapper(std::function<int(int)> mapper);
+        // void    setStateMapper(std::function<int(int)> mapper);
 };
 
 #endif
