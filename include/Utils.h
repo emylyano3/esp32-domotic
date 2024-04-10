@@ -1,6 +1,7 @@
 #include <string.h>
+#include "Logger.h"
 
-class Utils {
+class Utils {   
     public:
         static bool endsWith(char* a, const char* b) {
             return String(a).endsWith(b);
@@ -31,6 +32,7 @@ class Utils {
         }
 
         static uint8_t mqttPayloadToBinaryState(uint8_t* payload, unsigned int length) {
-            return *payload > 0 ? 1 : 0;
+            log("Payload received", (*payload - '0'));
+            return (*payload - '0') > 0 ? 1 : 0;
         }
 };
