@@ -2,15 +2,14 @@
 #include "Logger.h"
 #include "Utils.h"
 
-Channel::Channel(const char* id, const char* name, uint8_t pin, uint8_t pinMode, bool analog, bool inverted) {
+Channel::Channel(const char* id, const char* name, uint8_t pin, uint8_t pinMode, bool analog) {
   this->id = id;
-  this->name = new char[CHANNEL_NAME_MAX_LENGTH + 1];
-  updateName(name);
   this->pin = pin;
   this->pinMode = pinMode;
   this->analog = analog;
-  this->inverted = inverted;
   this->timerControl = pinMode == OUTPUT ? 0 : timer;
+  this->name = new char[CHANNEL_NAME_MAX_LENGTH + 1];
+  updateName(name);
 }
 
 bool Channel::updateName (const char *name) {
@@ -30,7 +29,7 @@ bool Channel::updateName (const char *name) {
   return true;
 }
 
-void Channel::updateTimerControl() {
+void Channel::resetTimerControl() {
   this->timerControl = millis() + this->timer;
 }
 
@@ -71,11 +70,8 @@ void Channel::write(int value) {
     #endif
     analogWrite(this->pin, this->currState);
   } else {
-    if (value == HIGH) {
-      this->updateTimerControl();
-    }
-    if (this->inverted) {
-      value = value == LOW ? HIGH : LOW;
+    if (value == LOW) {
+      this->resetTimerControl();
     }
     this->currState = value;
     #ifdef LOGGING
@@ -85,18 +81,13 @@ void Channel::write(int value) {
   }
 }
 
-void Channel::setStateMapper(std::function<int(int)> mapper) {
-  this->valueMapper = mapper;
+const char* Channel::getLogicState() {
+  //TODO Mapear este estado de acuerdo a la funcion que este definida
+  // deberia manejar la logica invertida (si aplica)
+  return getPhysicalState() == LOW ? "1" : "0";
 }
 
-int Channel::getMappedState() {
-  if (this->valueMapper) {
-    return this->valueMapper(this->currState);
-  }
-  return this->currState;
-}
-
-int Channel::getRawState() {
+int Channel::getPhysicalState() {
   return this->currState;
 }
 
@@ -127,12 +118,10 @@ bool Channel::read() {
       this->currState = analogRead(this->pin);
     } else {
       int read = digitalRead(this->pin);
-      if (this->inverted) {
-        read = read == LOW ? HIGH : LOW;
-      }
+      read = read == LOW ? HIGH : LOW;
       this->currState = read;
     }
-    this->updateTimerControl();
+    this->resetTimerControl();
     return true;
   }
   return false;
