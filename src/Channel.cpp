@@ -19,14 +19,36 @@ bool Channel::updateName (const char *name) {
     #endif
     return false;
   }
-  // if (Utils::equals(this->name, name)) {
-    // #ifdef LOGGING
-    // log("Channel new name same as previous");
-    // #endif
-  //   return false;
-  // }
   Utils::copy(this->name, name, CHANNEL_NAME_MAX_LENGTH);
   return true;
+}
+
+bool Channel::isEnabled () {
+  return this->enabled && this->name != NULL && strlen(this->name) > 0;
+}
+
+bool Channel::isOutput() {
+  return this->pinMode == OUTPUT;
+}
+
+bool Channel::isAnalog() {
+  return this->analog;
+}
+
+bool Channel::checkTimer() {
+  if (timeIsUp()) {
+    #ifdef LOGGING
+    log("Timer in output channel is up", this->name);
+    #endif
+    this->timerControl = 0;
+    write(prevState);
+    return true;
+  }
+  return false; 
+}
+
+void Channel::setTimer(uint32_t time) {
+  this->timer = time;
 }
 
 void Channel::resetTimer() {
@@ -40,34 +62,6 @@ bool Channel::timeIsUp() {
     return this->timerControl > 0 && millis() > this->timerControl;
   }
   return false;
-}
-
-bool Channel::isEnabled () {
-  return this->enabled && this->name != NULL && strlen(this->name) > 0;
-}
-
-bool Channel::isOutput() {
-  return this->pinMode == OUTPUT;
-}
-
-bool Channel::checkTimer() {
-  if (timeIsUp()) {
-    #ifdef LOGGING
-    log("Timer on output channel is up", this->name);
-    #endif
-    this->timerControl = 0;
-    write(prevState);
-    return true;
-  }
-  return false; 
-}
-
-bool Channel::isAnalog() {
-  return this->analog;
-}
-
-void Channel::setTimer(uint32_t time) {
-  this->timer = time;
 }
 
 void Channel::setEnabled(bool enabled) {
