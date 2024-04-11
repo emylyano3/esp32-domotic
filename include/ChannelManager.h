@@ -25,7 +25,7 @@ class ChannelManager {
         std::vector<Channel*>   channels;
 
         void        connectBroker();
-        
+        void        checkOutputChannels();
         void        moduleHardReset ();
         void        moduleSoftReset ();
         void        saveChannelsSettings();

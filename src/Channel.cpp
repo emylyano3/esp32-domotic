@@ -29,12 +29,17 @@ bool Channel::updateName (const char *name) {
   return true;
 }
 
-void Channel::resetTimerControl() {
-  this->timerControl = millis() + this->timer;
+void Channel::resetTimer() {
+  if (this->timer != -1) {
+    this->timerControl = millis() + this->timer;
+  }
 }
 
 bool Channel::timeIsUp() {
-  return this->timerControl > 0 && millis() > this->timerControl;
+  if (this->timer != -1) {
+    return this->timerControl > 0 && millis() > this->timerControl;
+  }
+  return false;
 }
 
 bool Channel::isEnabled () {
@@ -43,6 +48,18 @@ bool Channel::isEnabled () {
 
 bool Channel::isOutput() {
   return this->pinMode == OUTPUT;
+}
+
+bool Channel::checkTimer() {
+  if (timeIsUp()) {
+    #ifdef LOGGING
+    log("Timer on output channel is up", this->name);
+    #endif
+    this->timerControl = 0;
+    write(prevState);
+    return true;
+  }
+  return false; 
 }
 
 bool Channel::isAnalog() {
@@ -70,21 +87,15 @@ void Channel::write(int value) {
     #endif
     analogWrite(this->pin, this->currState);
   } else {
-    if (value == LOW) {
-      this->resetTimerControl();
+    if (value == HIGH) {
+      this->resetTimer();
     }
     this->currState = value;
     #ifdef LOGGING
     log("Changing channel state to", this->currState == HIGH ? "[ON]" : "[OFF]");
     #endif
-    digitalWrite(this->pin, this->currState);
+    digitalWrite(this->pin, this->currState == LOW ? HIGH : LOW);
   }
-}
-
-const char* Channel::getLogicState() {
-  //TODO Mapear este estado de acuerdo a la funcion que este definida
-  // deberia manejar la logica invertida (si aplica)
-  return getPhysicalState() == LOW ? "1" : "0";
 }
 
 int Channel::getPhysicalState() {
@@ -121,7 +132,7 @@ bool Channel::read() {
       read = read == LOW ? HIGH : LOW;
       this->currState = read;
     }
-    this->resetTimerControl();
+    this->resetTimer();
     return true;
   }
   return false;

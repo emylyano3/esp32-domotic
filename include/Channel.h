@@ -25,6 +25,8 @@ class Channel {
         unsigned long   timer = NO_TIMER;
         unsigned long   timerControl;
 
+        bool    timeIsUp();
+
         //TODO Agregar el mapeo del value del channel de entrada y salida (para los diferentes tipos de canales)
         // separando en sub clases el comportamiento de input y output channel para mantener la logica simpls 
         // std::function<int(int)>         outgoingValueMapper;
@@ -45,25 +47,24 @@ class Channel {
         */
         bool    read();
 
-        /** Timer control */
+        /* Timer */
         // resets the timer control setting it to timer time ftom now
-        void    resetTimerControl();
-        bool    timeIsUp();
+        void    resetTimer();
+        void    setTimer(uint32_t);
+        bool    checkTimer();
 
-        /** Getters & setters*/
+        /* Getters & setters*/
         bool    isOutput();
         bool    isAnalog();
         void    setAnalog(bool);
         bool    isEnabled();
         void    setEnabled(bool);
-        void    setTimer(uint32_t);
-
         int     getPrevState();
         /* 
             Returns the channel current state mapped, according to the mapper function defined.
             If no mapper defined, plain value is returned instead
         */
-        const char*     getLogicState();
+        // const char*     getLogicState();
         int             getPhysicalState();
         void            setState(int);
         const char*     getId();
