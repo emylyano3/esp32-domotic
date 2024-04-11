@@ -7,7 +7,9 @@
 #define CHANNEL_NAME_MAX_LENGTH 20
 #endif
 
-static const uint32_t   NO_TIMER = -1;
+#ifndef CHANNEL_NO_TIMER 
+#define CHANNEL_NO_TIMER 0
+#endif
 
 class Channel {
     private:
@@ -19,11 +21,11 @@ class Channel {
         bool            analog;
 
         //mutable
-        int             currState = -1;
-        int             prevState = -1;
-        bool            enabled = true;
-        unsigned long   timer = NO_TIMER;
-        unsigned long   timerControl;
+        unsigned long   timerControl    = 0;
+        int             currState       = -1;
+        int             prevState       = -1;
+        bool            enabled         = true;
+        unsigned long   timer           = CHANNEL_NO_TIMER;
 
         bool    timeIsUp();
 
@@ -49,23 +51,19 @@ class Channel {
 
         /* Timer */
         // resets the timer control setting it to timer time ftom now
+        void    startTimer();
         void    resetTimer();
         void    setTimer(uint32_t);
         bool    checkTimer();
 
         /* Getters & setters*/
-        bool    isOutput();
-        bool    isAnalog();
-        void    setAnalog(bool);
-        bool    isEnabled();
-        void    setEnabled(bool);
-        int     getPrevState();
-        /* 
-            Returns the channel current state mapped, according to the mapper function defined.
-            If no mapper defined, plain value is returned instead
-        */
-        // const char*     getLogicState();
-        int             getPhysicalState();
+        bool            isOutput();
+        bool            isAnalog();
+        void            setAnalog(bool);
+        bool            isEnabled();
+        void            setEnabled(bool);
+        int             getPrevState();
+        int             getCurrentState();
         void            setState(int);
         const char*     getId();
         char*           getName();

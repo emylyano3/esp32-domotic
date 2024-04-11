@@ -51,14 +51,20 @@ void Channel::setTimer(uint32_t time) {
   this->timer = time;
 }
 
-void Channel::resetTimer() {
-  if (this->timer != -1) {
+void Channel::startTimer() {
+  if (this->timer != CHANNEL_NO_TIMER) {
     this->timerControl = millis() + this->timer;
   }
 }
 
+void Channel::resetTimer() {
+  if (this->timer != CHANNEL_NO_TIMER) {
+    this->timerControl = 0;
+  }
+}
+
 bool Channel::timeIsUp() {
-  if (this->timer != -1) {
+  if (this->timer != CHANNEL_NO_TIMER) {
     return this->timerControl > 0 && millis() > this->timerControl;
   }
   return false;
@@ -82,6 +88,8 @@ void Channel::write(int value) {
     analogWrite(this->pin, this->currState);
   } else {
     if (value == HIGH) {
+      this->startTimer();
+    } else {
       this->resetTimer();
     }
     this->currState = value;
@@ -92,7 +100,7 @@ void Channel::write(int value) {
   }
 }
 
-int Channel::getPhysicalState() {
+int Channel::getCurrentState() {
   return this->currState;
 }
 
@@ -126,7 +134,7 @@ bool Channel::read() {
       read = read == LOW ? HIGH : LOW;
       this->currState = read;
     }
-    this->resetTimer();
+    this->startTimer();
     return true;
   }
   return false;
