@@ -30,6 +30,22 @@ void ChannelManager::handle() {
     if (!this->pubsubClient->loop()) {
         connectBroker();
     }
+    checkOutputChannels();
+}
+
+
+void ChannelManager::checkOutputChannels() {
+//TODO implementar la posibilidad de lock desde el cliente
+//   if (_behaviourLocked) {
+//     return;
+//   }
+    for (size_t i = 0; i < this->channels.size(); ++i) {
+        Channel* channel = getChannel(i);
+        // Timer is checked just if the channel state was changed from the logic inside this lib (locally changed)
+        if (channel->isOutput() && channel->checkTimer()) {
+            this->pubsubClient->publish(getChannelTopic(i, "feedback/state").c_str(), Utils::getLogicState(channel->getCurrentState()));
+        }
+    }
 }
 
 void ChannelManager::setChannels(std::vector<Channel*>& channels) {
@@ -50,23 +66,23 @@ void ChannelManager::receiveMqttMessage(char* topic, uint8_t* payload, unsigned 
         moduleSoftReset();
     } else {
         for (size_t i = 0; i < this->channels.size(); ++i) {
-            Channel *channel = getChannel(i);
-            if (Utils::endsWith(topic, Utils::concat(channel->getName(), "/command/enable").c_str())) {
+            Channel* channel = getChannel(i);
+            if (strcmp(getChannelTopic(channel, "command/enable").c_str(), topic) == 0) {
                 if (enableChannelCommand(channel, payload, length)) {
                     saveChannelsSettings();
                 }
                 this->pubsubClient->publish(getChannelTopic(i, "feedback/enable").c_str(), channel->isEnabled() ? "1" : "0");
-            } else if (Utils::endsWith(topic, Utils::concat(channel->getName(), "/command/timer").c_str())) {
+            } else if (strcmp(getChannelTopic(channel, "command/timer").c_str(), topic) == 0) {
                 if (updateChannelTimerCommand(channel, payload, length)) {
                     saveChannelsSettings();
                 }
                 std::string sTimer = std::to_string(channel->getTimer());
                 this->pubsubClient->publish(getChannelTopic(i, "feedback/timer").c_str(), sTimer.c_str());
-            } else if (Utils::endsWith(topic, Utils::concat(channel->getName(), "/command/rename").c_str())) {
+            } else if (strcmp(getChannelTopic(channel, "command/rename").c_str(), topic) == 0) {
                 if (renameChannelCommand(channel, payload, length)) {
                     saveChannelsSettings();
                 }
-            } else if (Utils::endsWith(topic, Utils::concat(channel->getName(), "/command/state").c_str())) {
+            } else if (strcmp(getChannelTopic(channel, "command/state").c_str(), topic) == 0) {
                 // command/state topic is used to change the state on the channel with a desired value. So, receiving a mqtt
                 // message with this purpose has sense only if the channel is an output one.
                 if (channel->isOutput()) {
@@ -76,8 +92,8 @@ void ChannelManager::receiveMqttMessage(char* topic, uint8_t* payload, unsigned 
                 } else {
                     log("Can not change state on input channel");
                 }
-                this->pubsubClient->publish(getChannelTopic(i, "feedback/state").c_str(), channel->getLogicState());
-            } else if (Utils::endsWith(topic, Utils::concat(channel->getName(), "/command/read").c_str())) {
+                this->pubsubClient->publish(getChannelTopic(i, "feedback/state").c_str(), Utils::getLogicState(channel->getCurrentState()));
+            } else if (strcmp(getChannelTopic(channel, "command/read").c_str(), topic) == 0) {
                 if (!channel->isOutput()) {
                     
                 } else {
@@ -184,11 +200,11 @@ bool ChannelManager::changeOutputChannelStateCommand(Channel* channel, uint8_t* 
     }
     //TODO delegarle la interpretacion del payload al channel (a traves del ingoing value mapper) 
     // a traves de la funcion  de mapeo. La funcion ya deberia resolver la logica invertida (si aplica)
-    return updateChannelState(channel, Utils::mqttPayloadToBinaryState(payload, length));
+    return updateChannelState(channel, Utils::interpretMqttBinaryPayload(payload, length));
 }
 
 bool ChannelManager::updateChannelState (Channel* channel, int state) {
-    if (channel->getPhysicalState() == state) {
+    if (channel->getCurrentState() == state) {
         #ifdef LOGGING
         log("Channel is in same state, skipping", state);
         #endif
@@ -284,8 +300,7 @@ std::string ChannelManager::getChannelTopic(Channel* channel, const char* suffix
     channelTopic += '/';
     channelTopic += channel->getName();
     channelTopic += '/';
-    channelTopic += suffix;
-    return channelTopic;
+    return channelTopic += suffix;
 }
 
 std::string ChannelManager::getStationName() {
