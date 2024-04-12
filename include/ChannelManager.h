@@ -2,7 +2,11 @@
 #define CHANNEL_MANAGER_H
 
 #include <vector>
-#include <WiFi.h>
+#ifdef ESP32
+    #include <WiFi.h>
+#else
+    #include <ESP8266WiFi.h>
+#endif
 #include <PubSubClient.h>
 #include "Channel.h"
 #include "ConfigDef.h"

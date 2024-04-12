@@ -15,6 +15,6 @@ It's goal is to simplify and reduce the code necessary to write basic domotic mo
 
 **To compile project in PlatformIO CLI:**
 
-> pio ci ./examples/* -c platformio.ini --lib=. -e dev_ci
+> pio ci ./examples/* -c platformio.ini --lib=. -e ci_esp32
 
-> pio run -e dev_local_run
+> pio run -e dev_esp32_run

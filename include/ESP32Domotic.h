@@ -2,7 +2,6 @@
 #define ESP32Domotic_h
 
 #include <Arduino.h>
-#include <WiFi.h>
 #include <DNSServer.h>
 #include "ConfigDef.h"
 #include "OTAUpdate.h"

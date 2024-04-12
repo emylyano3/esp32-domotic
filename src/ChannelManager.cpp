@@ -33,7 +33,6 @@ void ChannelManager::handle() {
     checkOutputChannels();
 }
 
-
 void ChannelManager::checkOutputChannels() {
 //TODO implementar la posibilidad de lock desde el cliente
 //   if (_behaviourLocked) {
@@ -94,10 +93,10 @@ void ChannelManager::receiveMqttMessage(char* topic, uint8_t* payload, unsigned 
                 }
                 this->pubsubClient->publish(getChannelTopic(i, "feedback/state").c_str(), Utils::getLogicState(channel->getCurrentState()));
             } else if (strcmp(getChannelTopic(channel, "command/read").c_str(), topic) == 0) {
-                if (!channel->isOutput()) {
-                    
-                } else {
+                if (channel->isOutput()) {
                     log("Can not read state from output channel");
+                } else {
+                    
                 }
             }
         }
@@ -151,7 +150,7 @@ bool ChannelManager::updateChannelTimerCommand(Channel* channel, uint8_t* payloa
         buff[i] = payload[i];
     }
     buff[length] = '\0';
-    long newTimer = Utils::toInt(buff) * 1000; // received in seconds set in millis
+    unsigned long newTimer = Utils::toLong(buff) * 1000; // received in seconds set in millis
     #ifdef LOGGING
     log("New timer in seconds", newTimer);
     #endif
