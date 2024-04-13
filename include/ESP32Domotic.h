@@ -8,10 +8,6 @@
 #include "Channel.h"
 #include "ChannelManager.h"
 
-#ifndef ESP32
-#define ESP32
-#endif 
-
 #ifndef MAX_CHANNELS
 #define MAX_CHANNELS 5
 #endif

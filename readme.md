@@ -17,4 +17,4 @@ It's goal is to simplify and reduce the code necessary to write basic domotic mo
 
 > pio ci ./examples/* -c platformio.ini --lib=. -e ci_esp32
 
-> pio run -e dev_esp32_run
+> pio run -e loc_run_esp32
