@@ -127,11 +127,13 @@ bool ChannelManager::enableChannelCommand(Channel* channel, uint8_t* payload, un
             #ifdef LOGGING
             log("Invalid state", (payload[0]-'0'));
             #endif
-            break;
+            return false;
     }
-    #ifdef LOGGING
-    log("Same enablement state. No update done", (payload[0]-'0'));
-    #endif
+    if (!stateChanged) {
+        #ifdef LOGGING
+        log("Same enablement state. No update done", (payload[0]-'0'));
+        #endif
+    }
     return stateChanged;
 }
 
