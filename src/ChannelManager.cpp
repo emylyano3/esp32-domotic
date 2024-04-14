@@ -125,12 +125,12 @@ bool ChannelManager::enableChannelCommand(Channel* channel, uint8_t* payload, un
             break;
         default:
             #ifdef LOGGING
-            log("Invalid state", payload[0]);
+            log("Invalid state", (payload[0]-'0'));
             #endif
             break;
     }
     #ifdef LOGGING
-    log("Same state. No update done.");
+    log("Same enablement state. No update done", (payload[0]-'0'));
     #endif
     return stateChanged;
 }
@@ -154,9 +154,14 @@ bool ChannelManager::updateChannelTimerCommand(Channel* channel, uint8_t* payloa
     #ifdef LOGGING
     log("New timer in seconds", newTimer);
     #endif
-    bool timerChanged = channel->getTimer() != newTimer;
-    channel->setTimer(newTimer);
-    return timerChanged;
+    if (channel->getTimer() != newTimer) {
+        channel->setTimer(newTimer);
+        return true;
+    }
+    #ifdef LOGGING
+    log("Same timer. No update done", newTimer);
+    #endif
+    return false;
 }
 
 bool ChannelManager::renameChannelCommand(Channel* channel, uint8_t* payload, unsigned int length) {
@@ -172,12 +177,18 @@ bool ChannelManager::renameChannelCommand(Channel* channel, uint8_t* payload, un
     char buffer[length + 1];
     strncpy(buffer, (char*)payload, length);
     buffer[length] = '\0';
-    if (channel->updateName(buffer)) {
-        this->pubsubClient->unsubscribe(getChannelTopic(channel, "command/+").c_str());
-        delay(200);
-        this->pubsubClient->subscribe(getChannelTopic(channel, "command/+").c_str());
-        return true;
+    if (strcmp(buffer, channel->getName()) != 0) {
+        if (channel->updateName(buffer)) {
+            this->pubsubClient->unsubscribe(getChannelTopic(channel, "command/+").c_str());
+            delay(200);
+            this->pubsubClient->subscribe(getChannelTopic(channel, "command/+").c_str());
+            return true;
+        }
+        return false;
     }
+    #ifdef LOGGING
+    log("Same name. No update done", std::string(buffer).c_str());
+    #endif
     return false;
 }
 
@@ -205,7 +216,7 @@ bool ChannelManager::changeOutputChannelStateCommand(Channel* channel, uint8_t* 
 bool ChannelManager::updateChannelState (Channel* channel, int state) {
     if (channel->getCurrentState() == state) {
         #ifdef LOGGING
-        log("Channel is in same state, skipping", state);
+        log("Same state. No update done", state);
         #endif
         return false;
     } 
