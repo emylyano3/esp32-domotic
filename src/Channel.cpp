@@ -1,27 +1,26 @@
 #include "Channel.h"
 #include "Logger.h"
+#include "Utils.h"
 
-Channel::Channel(const char* id, const char* name, uint8_t pin, uint8_t pinMode, bool analog, bool inverted) {
+Channel::Channel(const char* id, const char* name, uint8_t pin, uint8_t pinMode, bool analog) {
   this->id = id;
-  this->name = new char[CHANNEL_NAME_MAX_LENGTH + 1];
-  updateName(name);
   this->pin = pin;
   this->pinMode = pinMode;
   this->analog = analog;
-  this->inverted = inverted;
   this->timerControl = pinMode == OUTPUT ? 0 : timer;
+  this->name = new char[CHANNEL_NAME_MAX_LENGTH + 1];
+  updateName(name);
 }
 
-void Channel::updateName (const char *v) {
-  String(v).toCharArray(this->name, CHANNEL_NAME_MAX_LENGTH);
-}
-
-void Channel::updateTimerControl() {
-  this->timerControl = millis() + this->timer;
-}
-
-bool Channel::timeIsUp() {
-  return this->timerControl > 0 && millis() > this->timerControl;
+bool Channel::updateName (const char *name) {
+  if (strlen(name) > CHANNEL_NAME_MAX_LENGTH) {
+    #ifdef LOGGING
+    log("Channel new name too long");
+    #endif
+    return false;
+  }
+  Utils::copy(this->name, name, CHANNEL_NAME_MAX_LENGTH);
+  return true;
 }
 
 bool Channel::isEnabled () {
@@ -36,8 +35,43 @@ bool Channel::isAnalog() {
   return this->analog;
 }
 
+bool Channel::checkTimer() {
+  if (timeIsUp()) {
+    #ifdef LOGGING
+    log("Timer in output channel is up", this->name);
+    #endif
+    this->timerControl = 0;
+    write(prevState);
+    return true;
+  }
+  return false; 
+}
+
 void Channel::setTimer(uint32_t time) {
   this->timer = time;
+}
+
+void Channel::startTimer() {
+  if (this->timer != CHANNEL_NO_TIMER) {
+    this->timerControl = millis() + this->timer;
+  }
+}
+
+void Channel::resetTimer() {
+  if (this->timer != CHANNEL_NO_TIMER) {
+    this->timerControl = 0;
+  }
+}
+
+bool Channel::timeIsUp() {
+  if (this->timer != CHANNEL_NO_TIMER) {
+    return this->timerControl > 0 && millis() > this->timerControl;
+  }
+  return false;
+}
+
+void Channel::setEnabled(bool enabled) {
+  this->enabled = enabled;
 }
 
 void Channel::setAnalog(bool analog) {
@@ -54,36 +88,32 @@ void Channel::write(int value) {
     analogWrite(this->pin, this->currState);
   } else {
     if (value == HIGH) {
-      this->updateTimerControl();
-    }
-    if (this->inverted) {
-      value = value == LOW ? HIGH : LOW;
+      this->startTimer();
+    } else {
+      this->resetTimer();
     }
     this->currState = value;
     #ifdef LOGGING
     log("Changing channel state to", this->currState == HIGH ? "[ON]" : "[OFF]");
     #endif
-    digitalWrite(this->pin, this->currState);
+    digitalWrite(this->pin, this->currState == LOW ? HIGH : LOW);
   }
 }
 
-void Channel::setStateMapper(std::function<int(int)> mapper) {
-  this->valueMapper = mapper;
-}
-
-int Channel::getMappedState() {
-  if (this->valueMapper) {
-    return this->valueMapper(this->currState);
-  }
-  return this->currState;
-}
-
-int Channel::getRawState() {
+int Channel::getCurrentState() {
   return this->currState;
 }
 
 char* Channel::getName() {
   return this->name;
+}
+
+const char* Channel::getId() {
+  return this->id;
+}
+
+unsigned long Channel::getTimer() {
+  return this->timer;
 }
 
 int Channel::getPrevState() {
@@ -101,12 +131,10 @@ bool Channel::read() {
       this->currState = analogRead(this->pin);
     } else {
       int read = digitalRead(this->pin);
-      if (this->inverted) {
-        read = read == LOW ? HIGH : LOW;
-      }
+      read = read == LOW ? HIGH : LOW;
       this->currState = read;
     }
-    this->updateTimerControl();
+    this->startTimer();
     return true;
   }
   return false;

@@ -33,7 +33,6 @@ void ESP32Domotic::init() {
   log("Initializing domotic module");
   #endif    
   ConfigRepo repo;
-  repo.init();
   if (!repo.load(this->config)) {
     #ifdef LOGGING
     log("Setting defaults. Could not load config from", this->config->getConfigFilePath());
@@ -56,6 +55,7 @@ void ESP32Domotic::init() {
     #endif   
     ESP.restart();
   }
+  repo.load(this->config, this->channels);
   initOTAUpdate();
   initChannelManager();
 }
@@ -137,9 +137,9 @@ bool ESP32Domotic::connectWifi() {
   return false;
 }
 
-bool ESP32Domotic::addChannel(Channel *channel) {
+bool ESP32Domotic::addChannel(Channel* channel) {
   if (this->channels.size() < MAX_CHANNELS) {
-    this->channels.push_back(*channel);
+    this->channels.push_back(channel);
     #ifdef LOGGING
     log("Channel added", channel->getName());
     #endif

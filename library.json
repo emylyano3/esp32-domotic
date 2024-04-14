@@ -10,9 +10,9 @@
       "name": "ArduinoJson",
       "version": "^7.0.4"
     },{
-      "owner": "wnatth3",
+      "owner": "tzapu",
       "name": "WiFiManager",
-      "version": "2.0.16-rc.2"
+      "version": "git+https://github.com/tzapu/WiFiManager.git#v2.0.17"
     },{
       "owner": "ayushsharma82",
       "name": "ElegantOTA",

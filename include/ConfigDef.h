@@ -19,6 +19,7 @@ class ConfigDef {
         const char* moduleType = "generic";
 
         const char* configFilePath;
+        const char* channelsFilePath;
         
         char* mqttHost = new char[MQTT_HOST_PARAM_LENGTH];
         char* mqttPort = new char[MQTT_PORT_PARAM_LENGTH];
@@ -26,10 +27,11 @@ class ConfigDef {
         char* moduleLocation = new char[MODULE_LOCATION_PARAM_LENGTH];
 
     public:
-        ConfigDef(const char* configFilePath);
+        ConfigDef(const char* configFilePath, const char* channelsFilePath);
         ~ConfigDef();
         
         const char* getConfigFilePath();
+        const char* getChannelsFilePath();
         const char* getModuleType();
 
         char*   getMqttHost();

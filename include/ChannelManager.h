@@ -2,7 +2,11 @@
 #define CHANNEL_MANAGER_H
 
 #include <vector>
-#include <WiFi.h>
+#ifdef ESP32
+    #include <WiFi.h>
+#else
+    #include <ESP8266WiFi.h>
+#endif
 #include <PubSubClient.h>
 #include "Channel.h"
 #include "ConfigDef.h"
@@ -20,16 +24,26 @@ class ChannelManager {
         unsigned int            mqttReconnections    = 0;
 
         WiFiClient              wifiClient;
-        ConfigDef*              config; 
+        ConfigDef*              config;
         PubSubClient*           pubsubClient;
-        std::vector<Channel>    channels;
+        std::vector<Channel*>   channels;
 
         void        connectBroker();
+        void        checkOutputChannels();
+        void        moduleHardReset ();
+        void        moduleSoftReset ();
+        void        saveChannelsSettings();
+        bool        enableChannelCommand(Channel*, uint8_t*, unsigned int);
+        bool        updateChannelTimerCommand(Channel*, uint8_t*, unsigned int);
+        bool        renameChannelCommand(Channel*, uint8_t*, unsigned int);
+        bool        changeOutputChannelStateCommand(Channel*, uint8_t*, unsigned int);
+        bool        updateChannelState(Channel*, int );
         
-        const char* getChannelTopic(uint8_t, const char*);
-        const char* getStationTopic(const char*);
+        std::string getChannelTopic(uint8_t, const char*);
+        std::string getChannelTopic(Channel*, const char*);
+        std::string getStationTopic(const char*);
+        std::string getStationName();
         Channel*    getChannel(uint8_t i);
-        const char* getStationName();
 
     public:
         ChannelManager(){};
@@ -37,7 +51,7 @@ class ChannelManager {
 
         void init();
         void handle();
-        void setChannels(std::vector<Channel>&);
+        void setChannels(std::vector<Channel*>&);
         void setConfig(ConfigDef*);
         void receiveMqttMessage(char*, uint8_t*, unsigned int);
 };
