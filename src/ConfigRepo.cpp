@@ -6,7 +6,11 @@
 #include "Utils.h"
 
 ConfigRepo::ConfigRepo() {
+    #ifdef ESP32
     if (LittleFS.begin(true)) {
+    #else
+    if (LittleFS.begin()) {
+    #endif
         #ifdef LOGGING
         log("FS inicializado");
         #endif

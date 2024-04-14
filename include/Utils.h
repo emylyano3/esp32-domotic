@@ -1,4 +1,4 @@
-#include <string.h>
+#include <string>
 #include "Logger.h"
 
 class Utils {   
@@ -19,13 +19,15 @@ class Utils {
             String(b).toCharArray(a, size);
         }
 
-        static int toInt(char* s) {
-            return String(s).toInt();
+        static unsigned long toLong(char* s) {
+            char* end;
+            unsigned long num = strtoul(s, &end, 0);
+            return *end == '\0' ? num : 0;
         }
  
         static int mqttPayloadToInt(uint8_t* payload, unsigned int length) {
             int value = 0;
-            for (int i = 0; i < length; i++) {
+            for (unsigned int i = 0; i < length; i++) {
                 value = value * 10 + (payload[i] - '0');
             }
             return value;

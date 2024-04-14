@@ -2,16 +2,11 @@
 #define ESP32Domotic_h
 
 #include <Arduino.h>
-#include <WiFi.h>
 #include <DNSServer.h>
 #include "ConfigDef.h"
 #include "OTAUpdate.h"
 #include "Channel.h"
 #include "ChannelManager.h"
-
-#ifndef ESP32
-#define ESP32
-#endif 
 
 #ifndef MAX_CHANNELS
 #define MAX_CHANNELS 5
