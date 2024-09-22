@@ -40,12 +40,24 @@ void ChannelManager::checkOutputChannels() {
 //   }
     for (size_t i = 0; i < this->channels.size(); ++i) {
         Channel* channel = getChannel(i);
-        // Timer is checked just if the channel state was changed from the logic inside this lib (locally changed)
-        if (channel->isOutput() && channel->checkTimer()) {
+        if (channel->isOutput() && channel->isEnabled() && channel->checkTimer()) {
             this->pubsubClient->publish(getChannelTopic(i, "feedback/state").c_str(), Utils::getLogicState(channel->getCurrentState()));
         }
     }
 }
+
+/*
+Output
+  - Digital
+    - Seial
+    - pwm
+    - binario
+  - Analogico
+
+Input
+ - digital
+ - analogico
+*/
 
 void ChannelManager::setChannels(std::vector<Channel*>& channels) {
     this->channels = channels;
